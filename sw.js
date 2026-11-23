@@ -1,8 +1,8 @@
 // Service worker : permet à l'app de s'ouvrir même sans réseau.
 // Stratégie "réseau d'abord" : on prend toujours la dernière version en ligne,
 // et on se rabat sur la copie en cache si le réseau ne répond pas.
-const CACHE = 'assiette-v1';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
+const CACHE = 'assiette-v2';
+const FILES = ['./', './index.html', './recipes.js', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

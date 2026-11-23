@@ -4,394 +4,555 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon Assiette</title>
-<meta name="description" content="Photo de ton repas, calories et macros estimées.">
-<meta name="theme-color" content="#0a0b0b">
-<meta name="color-scheme" content="dark">
+<meta name="description" content="Recettes de sèche et suivi de tes calories et macros.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Assiette">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap" rel="stylesheet">
 <style>
 :root {
---bg: #0a0b0b;
---bg2: #111313;
---card: #161919;
---card2: #1d2121;
---line: rgba(255,255,255,.07);
---line2: rgba(255,255,255,.12);
---text: #f4f6f5;
---muted: #8b9491;
---dim: #5c6562;
---lime: #c8f24a;
---lime-ink: #0d1203;
---lime-soft: rgba(200,242,74,.12);
---p: #5ac8fa;
---c: #ffb547;
---f: #ff6b8b;
---danger: #ff5a5a;
---r: 22px;
-color-scheme: dark;
+  --bg: #fff; --bg2: #fafafa; --text: #000; --muted: #737373; --dim: #a8a8a8;
+  --chip: #efefef; --line: #dbdbdb; --card: #fff;
+  --blue: #0095f6; --red: #ff3040; --ok: #12b76a;
+  --p: #3b82f6; --c: #f59e0b; --f: #ec4899;
+  --grad: linear-gradient(45deg, #feda75 0%, #fa7e1e 25%, #d62976 55%, #962fbf 80%, #4f5bd5 100%);
+  --shadow: 0 10px 40px rgba(0,0,0,.18);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #000; --bg2: #121212; --text: #f5f5f5; --muted: #a8a8a8; --dim: #737373; --chip: #262626; --line: #262626; --card: #121212; --shadow: 0 10px 40px rgba(0,0,0,.6); color-scheme: dark; }
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--text); }
-body {
-font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
-padding: env(safe-area-inset-top) 0 calc(110px + env(safe-area-inset-bottom));
-min-height: 100vh;
--webkit-font-smoothing: antialiased;
-background:
-radial-gradient(120% 50% at 50% -10%, rgba(200,242,74,.10), transparent 60%),
-var(--bg);
-background-attachment: fixed;
-}
-button, input, textarea, select { font: inherit; color: inherit; }
-button { cursor: pointer; }
-svg.i { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+body { font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: env(safe-area-inset-top) 0 calc(64px + env(safe-area-inset-bottom)); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+svg.i { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; display: block; }
 .num { font-variant-numeric: tabular-nums; }
-.wrap { max-width: 560px; margin: 0 auto; padding: 0 18px; }
+.wrap { max-width: 520px; margin: 0 auto; }
+.pad { padding: 0 16px; }
 .hidden { display: none !important; }
 .muted { color: var(--muted); }
-.small { font-size: 13px; }
 .row { display: flex; align-items: center; gap: 10px; }
-.between { justify-content: space-between; }
 .grow { flex: 1; min-width: 0; }
+
 /* ---------- En-tête ---------- */
-.top { padding-top: 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--lime); }
-h1 { font-size: 34px; line-height: 1.05; margin: 4px 0 0; font-weight: 800; letter-spacing: -.035em; }
-h2 { font-size: 20px; margin: 0; font-weight: 750; letter-spacing: -.02em; }
-.section-head { display: flex; align-items: center; justify-content: space-between; margin: 28px 0 12px; }
-.round-btn { width: 42px; height: 42px; border-radius: 21px; border: 1px solid var(--line2); background: var(--card); display: grid; place-items: center; color: var(--text); }
-.round-btn:active { transform: scale(.95); }
-.pill-btn { border: 1px solid var(--line2); background: var(--card); color: var(--text); border-radius: 999px; padding: 9px 14px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-.pill-btn svg.i { width: 18px; height: 18px; }
-/* ---------- Bande de la semaine ---------- */
-.week { display: grid; grid-template-columns: 28px repeat(7, 1fr) 28px; align-items: center; gap: 4px; margin: 18px 0 18px; }
-.week .arrow { border: 0; background: transparent; color: var(--muted); padding: 0; height: 60px; display: grid; place-items: center; }
-.week .arrow:disabled { opacity: .2; }
-.wd { border: 0; background: transparent; border-radius: 16px; padding: 8px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--muted); }
-.wd .l { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.wd .n { font-size: 16px; font-weight: 700; color: var(--text); width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; position: relative; }
+.ig-head { position: sticky; top: 0; z-index: 15; background: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; height: 52px; }
+.logo { font-family: "Grand Hotel", "Snell Roundhand", "Brush Script MT", cursive; font-size: 30px; line-height: 1; letter-spacing: .2px; padding-top: 4px; }
+.head-btns { display: flex; gap: 18px; align-items: center; }
+.head-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.ibtn { position: relative; color: var(--text); display: grid; place-items: center; }
+.ibtn .dot { position: absolute; top: -2px; right: -3px; width: 9px; height: 9px; border-radius: 5px; background: var(--red); border: 2px solid var(--bg); }
+
+/* ---------- Stories ---------- */
+.stories { display: flex; gap: 14px; overflow-x: auto; padding: 8px 16px 12px; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+.stories::-webkit-scrollbar { display: none; }
+.story { flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; color: var(--text); }
+.story .ring { display: block; width: 70px; height: 70px; border-radius: 50%; padding: 3px; background: var(--grad); }
+.story.seen .ring { background: var(--line); }
+.story .in { display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--bg); padding: 3px; }
+.story .av { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; font-size: 28px; background: var(--chip); position: relative; overflow: hidden; }
+.story .lbl { max-width: 72px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.story.on .lbl { font-weight: 700; }
+.story.me .av { background: conic-gradient(var(--ok) var(--pct), var(--chip) 0); }
+.story.me .av b { position: absolute; inset: 5px; border-radius: 50%; background: var(--bg); display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1.05; text-align: center; }
+.story.me .av b small { display: block; font-size: 9px; font-weight: 600; color: var(--muted); }
+
+/* ---------- Budget du jour ---------- */
+.budget { display: flex; align-items: center; gap: 10px; margin: 12px 16px 4px; padding: 10px 12px; border-radius: 12px; background: var(--chip); font-size: 13px; }
+.budget b { font-weight: 700; }
+.budget .go { margin-left: auto; color: var(--blue); font-weight: 600; white-space: nowrap; }
+
+/* ---------- Publications ---------- */
+.post { border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.post-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 14px; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; padding: 2px; background: var(--grad); flex: none; }
+.avatar i { width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--bg); display: grid; place-items: center; font-style: normal; font-size: 15px; background: var(--chip); }
+.post-head .who { font-weight: 650; font-size: 14px; line-height: 1.15; }
+.post-head .who .v { display: inline-block; width: 13px; height: 13px; vertical-align: -1px; margin-left: 3px; }
+.post-head .where { font-size: 12px; color: var(--text); opacity: .8; }
+.visual { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; user-select: none; -webkit-user-select: none; display: block; }
+.visual .e1 { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -52%); font-size: 160px; line-height: 1; filter: drop-shadow(0 18px 24px rgba(0,0,0,.22)); }
+.visual .e2 { position: absolute; left: 9%; top: 11%; font-size: 64px; transform: rotate(-14deg); filter: drop-shadow(0 8px 12px rgba(0,0,0,.18)); }
+.visual .e3 { position: absolute; right: 9%; bottom: 14%; font-size: 70px; transform: rotate(12deg); filter: drop-shadow(0 8px 12px rgba(0,0,0,.18)); }
+.visual .plate { position: absolute; left: 50%; top: 50%; width: 64%; aspect-ratio: 1; transform: translate(-50%, -48%); border-radius: 50%; background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.55), rgba(255,255,255,.18) 62%, rgba(255,255,255,.05) 70%); box-shadow: inset 0 -10px 30px rgba(0,0,0,.08), 0 20px 40px rgba(0,0,0,.12); }
+.visual .tagkcal { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+.visual .tagkcal span { background: rgba(0,0,0,.62); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 9px; border-radius: 999px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.visual .time { position: absolute; right: 12px; top: 12px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 9px; border-radius: 999px; }
+.visual .pop { position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px; color: #fff; fill: #fff; stroke: none; opacity: 0; pointer-events: none; filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
+.visual .pop.go { animation: pop .9s ease-out; }
+@keyframes pop { 0% { opacity: 0; transform: scale(.3); } 15% { opacity: 1; transform: scale(1.15); } 30% { transform: scale(.95); } 45% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1) translateY(-20px); } }
+.actions { display: flex; align-items: center; gap: 16px; padding: 10px 14px 6px; }
+.actions .save { margin-left: auto; }
+.liked svg.i { fill: var(--red); stroke: var(--red); }
+.saved svg.i { fill: currentColor; }
+.bump { animation: bump .35s; }
+@keyframes bump { 50% { transform: scale(1.25); } }
+.likes { padding: 0 14px; font-weight: 650; font-size: 14px; }
+.caption { padding: 4px 14px 0; font-size: 14px; }
+.caption b { font-weight: 650; }
+.caption .tags { color: #00376b; }
+@media (prefers-color-scheme: dark) { .caption .tags { color: #e0f1ff; } }
+.macro-line { display: flex; gap: 12px; padding: 6px 14px 0; font-size: 13px; color: var(--muted); }
+.macro-line b { color: var(--text); font-weight: 700; }
+.macro-line i { display: inline-block; width: 7px; height: 7px; border-radius: 4px; margin-right: 4px; vertical-align: 1px; }
+.more { padding: 4px 14px 0; color: var(--muted); font-size: 14px; }
+.eat { margin: 10px 14px 0; width: calc(100% - 28px); height: 36px; border-radius: 8px; background: var(--blue); color: #fff; font-weight: 650; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.eat svg.i { width: 18px; height: 18px; stroke-width: 2.4; }
+.eat:active { opacity: .8; }
+.end { text-align: center; padding: 30px 20px 40px; color: var(--muted); font-size: 14px; }
+.end .ok { width: 60px; height: 60px; border-radius: 50%; border: 2px solid transparent; background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--grad) border-box; display: grid; place-items: center; margin: 0 auto 10px; }
+.end b { display: block; color: var(--text); font-size: 16px; margin-bottom: 2px; }
+
+/* ---------- Explorer ---------- */
+.search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--chip); border-radius: 10px; padding: 0 12px; height: 38px; color: var(--muted); }
+.search svg.i { width: 18px; height: 18px; }
+.search input { flex: 1; border: 0; background: transparent; outline: none; font-size: 16px; color: var(--text); min-width: 0; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 10px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; height: 32px; padding: 0 14px; border-radius: 8px; background: var(--chip); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.chip.on { background: var(--text); color: var(--bg); }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.tile { position: relative; aspect-ratio: 1; overflow: hidden; display: block; width: 100%; }
+.tile .e1 { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); font-size: 54px; line-height: 1; filter: drop-shadow(0 6px 8px rgba(0,0,0,.2)); }
+.tile .e2 { position: absolute; left: 8%; top: 8%; font-size: 22px; transform: rotate(-12deg); }
+.tile .ov { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px; background: linear-gradient(transparent, rgba(0,0,0,.55)); color: #fff; font-size: 11px; font-weight: 700; display: flex; justify-content: space-between; }
+.tile.tall { grid-row: span 2; aspect-ratio: auto; }
+.tile.tall .e1 { font-size: 72px; }
+.tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.empty { text-align: center; padding: 40px 24px; color: var(--muted); font-size: 14px; }
+.empty .ico { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--text); color: var(--text); display: grid; place-items: center; margin: 0 auto 12px; }
+.empty b { display: block; color: var(--text); font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+
+/* ---------- Journal ---------- */
+.week { display: grid; grid-template-columns: 26px repeat(7, 1fr) 26px; align-items: center; gap: 2px; padding: 6px 10px 10px; }
+.week .arrow { height: 56px; display: grid; place-items: center; color: var(--muted); }
+.week .arrow svg.i { width: 20px; height: 20px; }
+.week .arrow:disabled { opacity: .25; }
+.wd { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 4px 0; color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.wd .n { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; font-weight: 700; color: var(--text); position: relative; text-transform: none; }
 .wd .n svg { position: absolute; inset: 0; transform: rotate(-90deg); }
-.wd.on { background: var(--lime); color: var(--lime-ink); }
-.wd.on .n { color: var(--lime-ink); }
+.wd.on .n { background: var(--text); color: var(--bg); }
+.wd.today:not(.on) { color: var(--text); }
 .wd.future { opacity: .3; pointer-events: none; }
-.wd.today:not(.on) .l { color: var(--lime); }
-/* ---------- Carte principale ---------- */
-.hero { background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); border-radius: 28px; padding: 22px 18px 18px; position: relative; overflow: hidden; }
-.hero::after { content: ""; position: absolute; width: 260px; height: 260px; right: -90px; top: -110px; background: radial-gradient(circle, rgba(200,242,74,.16), transparent 65%); pointer-events: none; }
-.hero-top { display: flex; align-items: center; gap: 18px; }
-.ring { width: 156px; height: 156px; flex: none; position: relative; }
+.dash { margin: 4px 16px 0; border: 1px solid var(--line); border-radius: 18px; padding: 18px 16px 16px; background: var(--card); }
+.dash-top { display: flex; align-items: center; gap: 18px; }
+.ring { width: 132px; height: 132px; flex: none; position: relative; }
 .ring svg { transform: rotate(-90deg); display: block; }
 .ring .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
-.ring .big { font-size: 38px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
-.ring .sub { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 600; }
-.stats { flex: 1; display: grid; gap: 14px; min-width: 0; }
-.stat .k { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-.stat .v { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
-.stat .v small { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: 0; }
-.macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
-.macro { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 18px; padding: 12px 12px 13px; }
-.macro .name { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; color: var(--muted); }
-.macro .name i { width: 8px; height: 8px; border-radius: 4px; display: inline-block; }
-.macro .val { white-space: nowrap; font-size: 19px; font-weight: 800; letter-spacing: -.02em; margin-top: 6px; }
-.macro .val small { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
-.bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 8px; }
+.ring .big { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.ring .sub { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+.stats { flex: 1; display: grid; gap: 12px; min-width: 0; }
+.stat .k { font-size: 12px; color: var(--muted); font-weight: 600; }
+.stat .v { font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.stat .v small { font-size: 12px; color: var(--muted); font-weight: 600; }
+.macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+.macro { background: var(--bg2); border-radius: 14px; padding: 10px; }
+.macro .name { font-size: 12px; font-weight: 650; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.macro .name i { width: 8px; height: 8px; border-radius: 4px; }
+.macro .val { white-space: nowrap; font-size: 17px; font-weight: 800; margin-top: 4px; }
+.macro .val small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.bar { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 7px; }
 .bar > i { display: block; height: 100%; border-radius: 3px; transition: width .5s; }
-.macro .left { white-space: nowrap; font-size: 11px; color: var(--muted); margin-top: 6px; font-weight: 600; }
-.over { color: var(--danger) !important; }
-/* ---------- Bandeaux ---------- */
-.banner { border-radius: 18px; padding: 14px 16px; font-size: 14px; margin: 0 0 14px; background: var(--card); border: 1px solid var(--line); display: flex; gap: 12px; align-items: flex-start; }
-.banner svg.i { color: var(--lime); margin-top: 1px; }
-.banner a { color: var(--lime); font-weight: 600; }
-.banner.err { border-color: rgba(255,90,90,.35); background: rgba(255,90,90,.08); }
-.banner.err svg.i { color: var(--danger); }
-.banner.warn svg.i { color: var(--c); }
-/* ---------- Repas ---------- */
-.meal { display: flex; gap: 14px; align-items: center; padding: 10px; padding-right: 16px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 10px; width: 100%; text-align: left; }
-.meal:active { transform: scale(.99); background: var(--card2); }
-.thumb { width: 68px; height: 68px; border-radius: 16px; object-fit: cover; flex: none; display: grid; place-items: center; background: linear-gradient(135deg, #22302a, #1a1f1d); color: var(--lime); }
-.meal .type { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--lime); }
-.meal .names { font-weight: 650; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.meal .mac { display: flex; gap: 10px; margin-top: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
-.meal .mac b { font-weight: 700; }
-.meal .kcal { text-align: right; }
-.meal .kcal b { font-size: 20px; font-weight: 800; letter-spacing: -.02em; display: block; line-height: 1; }
-.meal .kcal span { font-size: 11px; color: var(--muted); font-weight: 600; }
-.empty { text-align: center; padding: 34px 20px; color: var(--muted); border: 1.5px dashed var(--line2); border-radius: var(--r); }
-.empty .ico { width: 56px; height: 56px; border-radius: 28px; margin: 0 auto 12px; display: grid; place-items: center; background: var(--lime-soft); color: var(--lime); }
-.empty b { color: var(--text); display: block; margin-bottom: 4px; font-size: 16px; }
-/* ---------- Barre du bas ---------- */
-.tabbar { position: fixed; left: 0; right: 0; bottom: 0; padding: 0 14px calc(10px + env(safe-area-inset-bottom)); z-index: 20; pointer-events: none; }
-.tabbar .in { pointer-events: auto; max-width: 440px; margin: 0 auto; height: 68px; border-radius: 34px; background: rgba(24,27,27,.82); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%); border: 1px solid var(--line2); display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; align-items: center; padding: 0 6px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
-.tab { border: 0; background: transparent; color: var(--dim); font-size: 10px; font-weight: 650; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; }
-.tab.on { color: var(--text); }
-.tab.on svg.i { color: var(--lime); }
-.shoot { width: 62px; height: 62px; border-radius: 31px; border: 0; background: var(--lime); color: var(--lime-ink); margin: 0 auto; display: grid; place-items: center; box-shadow: 0 0 0 6px rgba(200,242,74,.12), 0 8px 24px rgba(200,242,74,.35); transform: translateY(-14px); }
-.shoot svg.i { width: 28px; height: 28px; stroke-width: 2.2; }
-.shoot:active { transform: translateY(-14px) scale(.94); }
-/* ---------- Feuille de repas ---------- */
-.sheet { position: fixed; inset: 0; background: var(--bg); z-index: 30; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(24px + env(safe-area-inset-bottom)); animation: up .28s cubic-bezier(.2,.8,.2,1); }
-@keyframes up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-.sheet-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: calc(10px + env(safe-area-inset-top)) 14px 10px; background: linear-gradient(var(--bg) 70%, transparent); }
-.sheet-head.over-photo { background: linear-gradient(rgba(0,0,0,.55), transparent); }
-.sheet-head.scrolled { background: rgba(10,11,11,.86); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
-.sheet-head .ttl { font-weight: 750; font-size: 16px; }
-.glass { width: 40px; height: 40px; border-radius: 20px; border: 1px solid var(--line2); background: rgba(20,22,22,.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: grid; place-items: center; color: var(--text); }
-.photo-hero { position: relative; margin-top: calc(-60px - env(safe-area-inset-top)); }
-.photo-hero img { width: 100%; height: 340px; object-fit: cover; display: block; }
-.photo-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, var(--bg)); }
-.sheet .content { position: relative; z-index: 2; }
-.photo-hero + .content { margin-top: -60px; }
-.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; }
-.seg button { border: 0; background: transparent; border-radius: 12px; padding: 10px 2px; font-size: 13px; font-weight: 650; color: var(--muted); }
-.seg button.on { background: var(--lime); color: var(--lime-ink); }
-.when { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-.field { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 9px 14px; }
-.field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.field input, .field textarea { width: 100%; border: 0; background: transparent; outline: none; font-size: 16px; padding: 3px 0 0; color: var(--text); }
-.field textarea { resize: none; min-height: 46px; }
-.field:focus-within { border-color: rgba(200,242,74,.5); }
+.macro .left { white-space: nowrap; font-size: 11px; color: var(--muted); margin-top: 5px; font-weight: 600; }
+.over { color: var(--red) !important; }
+.sec { display: flex; align-items: center; justify-content: space-between; padding: 22px 16px 10px; }
+.sec h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.link { color: var(--blue); font-weight: 600; font-size: 14px; }
+.meal { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 16px; text-align: left; }
+.meal:active { background: var(--chip); }
+.thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex: none; display: grid; place-items: center; font-size: 28px; background: var(--chip); overflow: hidden; }
+.meal .t { font-size: 12px; color: var(--muted); font-weight: 600; }
+.meal .names { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meal .mac { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.meal .kc { text-align: right; font-weight: 800; font-size: 16px; }
+.meal .kc span { display: block; font-size: 11px; color: var(--muted); font-weight: 600; }
+.banner { margin: 10px 16px 0; border-radius: 12px; padding: 12px 14px; font-size: 13px; background: var(--chip); display: flex; gap: 10px; align-items: flex-start; }
+.banner svg.i { width: 20px; height: 20px; }
+.banner a { color: var(--blue); font-weight: 600; text-decoration: none; }
+.banner.err { background: rgba(255,48,64,.1); }
+.banner.err svg.i { color: var(--red); }
+
+/* ---------- Profil ---------- */
+.prof { display: flex; align-items: center; gap: 22px; padding: 10px 16px 0; }
+.big-av { width: 86px; height: 86px; border-radius: 50%; padding: 3px; background: var(--grad); flex: none; }
+.big-av i { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg); background: var(--chip); display: grid; place-items: center; font-size: 40px; font-style: normal; }
+.counts { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+.counts b { display: block; font-size: 17px; font-weight: 700; }
+.counts span { font-size: 13px; }
+.bio { padding: 12px 16px 0; font-size: 14px; }
+.bio b { font-weight: 650; }
+.pbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 12px 16px 6px; }
+.pbtn { height: 34px; border-radius: 8px; background: var(--chip); font-weight: 650; font-size: 14px; }
+.hl { display: flex; gap: 14px; padding: 12px 16px 6px; overflow-x: auto; scrollbar-width: none; }
+.hl::-webkit-scrollbar { display: none; }
+.hl .h { flex: none; width: 64px; text-align: center; font-size: 12px; }
+.hl .h i { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 800; margin-bottom: 4px; padding: 3px; background: var(--bg); }
+.hl .h i span { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; background: var(--chip); line-height: 1.05; }
+.hl .h i span small { display: block; font-size: 9px; color: var(--muted); font-weight: 600; }
+.ptabs { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); margin-top: 8px; }
+.ptab { height: 46px; display: grid; place-items: center; color: var(--dim); border-top: 1px solid transparent; margin-top: -1px; }
+.ptab.on { color: var(--text); border-top-color: var(--text); }
+.day { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 16px; text-align: left; }
+.day:active { background: var(--chip); }
+.day .date { width: 44px; text-align: center; flex: none; }
+.day .date b { display: block; font-size: 20px; font-weight: 800; line-height: 1; }
+.day .date span { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 650; }
+.day .meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.day .k { text-align: right; font-weight: 800; }
+.day .k span { display: block; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+/* ---------- Réglages ---------- */
+.group { margin: 0 16px 14px; border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: var(--card); }
+.group h3 { margin: 0 0 4px; font-size: 16px; }
+.group p { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+.group p a { color: var(--blue); font-weight: 600; text-decoration: none; }
+.tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.field { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+.field label { display: block; font-size: 11px; font-weight: 650; color: var(--muted); }
+.field input, .field textarea { width: 100%; border: 0; background: transparent; outline: none; font-size: 16px; padding: 2px 0 0; color: var(--text); }
+.field textarea { resize: none; min-height: 44px; }
+.field:focus-within { border-color: var(--blue); }
 input[type=date], input[type=time] { -webkit-appearance: none; appearance: none; min-height: 24px; }
 ::placeholder { color: var(--dim); }
-.btn { border: 0; border-radius: 18px; padding: 16px; font-weight: 750; font-size: 16px; background: var(--card); border: 1px solid var(--line2); width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--text); }
-.btn.primary { background: var(--lime); color: var(--lime-ink); border-color: transparent; }
-.btn.danger { background: transparent; color: var(--danger); border-color: rgba(255,90,90,.3); }
-.btn:disabled { opacity: .55; }
-.btn:active { transform: scale(.98); }
-.btn + .btn { margin-top: 10px; }
+.keyrow { display: flex; gap: 8px; }
+.keyrow .field { flex: 1; }
+.sq { width: 48px; border-radius: 12px; background: var(--chip); display: grid; place-items: center; }
+.btn { width: 100%; height: 44px; border-radius: 10px; background: var(--chip); font-weight: 650; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn svg.i { width: 20px; height: 20px; }
-.ai-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; margin-top: 12px; }
-.ai-card .btns { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
-.ai-card .btns .btn + .btn { margin-top: 0; }
-.claude { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-top: 12px; }
-.claude h3 { margin: 0 0 12px; font-size: 16px; }
-.step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; font-size: 14px; color: #cfd6d3; }
-.step b.n { flex: none; width: 24px; height: 24px; border-radius: 12px; background: var(--lime-soft); color: var(--lime); display: grid; place-items: center; font-size: 12px; }
-.conf { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 16px; background: var(--lime-soft); border: 1px solid rgba(200,242,74,.25); font-size: 14px; margin-top: 14px; }
-.conf.low { background: rgba(255,181,71,.1); border-color: rgba(255,181,71,.3); }
-.conf svg.i { color: var(--lime); width: 20px; height: 20px; }
-.conf.low svg.i { color: var(--c); }
-.item { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; margin-bottom: 10px; }
+.btn.primary { background: var(--blue); color: #fff; }
+.btn.danger { color: var(--red); }
+.btn:disabled { opacity: .55; }
+.btn:active { opacity: .8; }
+.btn + .btn { margin-top: 8px; }
+details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
+.version { text-align: center; color: var(--dim); font-size: 12px; margin: 18px 0; }
+
+/* ---------- Barre du bas ---------- */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--bg); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+.tabbar .in { max-width: 520px; margin: 0 auto; height: 52px; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; }
+.tab { height: 100%; display: grid; place-items: center; color: var(--text); }
+.tab .me-av { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--chip); font-size: 15px; }
+.tab.on .me-av { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+.tab.on svg.i { stroke-width: 2.6; }
+.tab.on .fillable { fill: currentColor; }
+
+/* ---------- Menu d'ajout ---------- */
+.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.45); animation: fade .2s; }
+@keyframes fade { from { opacity: 0; } }
+.menu { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; background: var(--card); border-radius: 16px 16px 0 0; padding: 8px 0 calc(14px + env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; animation: up .28s cubic-bezier(.2,.8,.2,1); }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.grab { width: 40px; height: 4px; border-radius: 2px; background: var(--dim); margin: 0 auto 10px; opacity: .6; }
+.menu h4 { text-align: center; margin: 0 0 8px; font-size: 16px; }
+.mi { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 18px; text-align: left; }
+.mi:active { background: var(--chip); }
+.mi .ic { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--chip); flex: none; }
+.mi .ic.g { background: var(--grad); color: #fff; }
+.mi b { display: block; font-weight: 650; }
+.mi span { font-size: 13px; color: var(--muted); }
+
+/* ---------- Feuilles plein écran ---------- */
+.sheet { position: fixed; inset: 0; background: var(--bg); z-index: 30; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(24px + env(safe-area-inset-bottom)); animation: up .28s cubic-bezier(.2,.8,.2,1); }
+.sheet-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(8px + env(safe-area-inset-top)) 12px 8px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.sheet-head .ttl { font-weight: 700; font-size: 16px; flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-head .ibtn { width: 36px; height: 36px; }
+.sheet-photo { width: 100%; max-height: 420px; object-fit: cover; display: block; }
+.content { padding: 14px 16px 0; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--chip); border-radius: 10px; padding: 3px; }
+.seg button { border-radius: 8px; padding: 8px 2px; font-size: 13px; font-weight: 650; color: var(--muted); }
+.seg button.on { background: var(--bg); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.when { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.box { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-top: 12px; }
+.box h3 { margin: 0 0 10px; font-size: 15px; }
+.box .btn { margin-top: 10px; }
+.step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; font-size: 14px; }
+.step b.n { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--grad); color: #fff; display: grid; place-items: center; font-size: 12px; }
+.conf { display: flex; gap: 10px; padding: 12px; border-radius: 12px; background: rgba(18,183,106,.1); font-size: 14px; margin-top: 12px; }
+.conf.low { background: rgba(245,158,11,.12); }
+.conf svg.i { width: 20px; height: 20px; }
+.item { border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 8px; }
 .item .head { display: flex; align-items: center; gap: 8px; }
-.item .name { flex: 1; min-width: 0; font-weight: 700; border: 0; background: transparent; padding: 4px 0; font-size: 17px; outline: none; color: var(--text); }
-.item .del { border: 0; background: transparent; color: var(--dim); width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; }
-.item .del:active { color: var(--danger); background: rgba(255,90,90,.1); }
+.item .name { flex: 1; min-width: 0; font-weight: 700; border: 0; background: transparent; padding: 4px 0; font-size: 16px; outline: none; color: var(--text); }
+.item .del { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--dim); }
 .item .del svg.i { width: 18px; height: 18px; }
-.grid5 { display: grid; grid-template-columns: 1.15fr 1.15fr 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
-.cell { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 4px 7px; text-align: center; }
-.cell:focus-within { border-color: rgba(200,242,74,.55); }
-.cell label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.grid5 { display: grid; grid-template-columns: 1.15fr 1.15fr 1fr 1fr 1fr; gap: 6px; margin-top: 6px; }
+.cell { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 5px 3px 6px; text-align: center; }
+.cell:focus-within { border-color: var(--blue); }
+.cell label { display: block; font-size: 10px; font-weight: 650; color: var(--muted); }
 .cell label i { display: inline-block; width: 6px; height: 6px; border-radius: 3px; margin-right: 3px; vertical-align: 1px; }
-.cell input { width: 100%; border: 0; background: transparent; text-align: center; font-size: 16px; font-weight: 700; outline: none; padding: 2px 0 0; color: var(--text); font-variant-numeric: tabular-nums; }
-.add-item { width: 100%; border: 1.5px dashed var(--line2); background: transparent; border-radius: var(--r); padding: 14px; color: var(--muted); font-weight: 650; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.totals { position: sticky; bottom: 0; z-index: 3; padding: 14px 0 calc(6px + env(safe-area-inset-bottom)); margin-top: 14px; background: linear-gradient(transparent, var(--bg) 22%); }
-.totals .box { background: rgba(29,33,33,.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--line2); border-radius: 24px; padding: 10px; box-shadow: 0 -10px 30px rgba(0,0,0,.5); }
-.totals .box { display: flex; align-items: center; gap: 8px; }
-.totals .nums { flex: 1; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; text-align: center; margin: 0; }
-.totals .btn { width: auto; padding: 14px 18px; flex: none; }
-.totals .nums b { display: block; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
-.totals .nums span { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cell input { width: 100%; border: 0; background: transparent; text-align: center; font-size: 16px; font-weight: 700; outline: none; padding: 1px 0 0; color: var(--text); font-variant-numeric: tabular-nums; }
+.add-item { width: 100%; border: 1.5px dashed var(--line); border-radius: 14px; padding: 12px; color: var(--muted); font-weight: 650; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.add-item svg.i { width: 20px; height: 20px; }
+.totals { position: sticky; bottom: 0; z-index: 3; padding: 12px 0 calc(6px + env(safe-area-inset-bottom)); margin-top: 12px; background: linear-gradient(transparent, var(--bg) 25%); }
+.totals .bx { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 8px; box-shadow: var(--shadow); }
+.totals .nums { flex: 1; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; text-align: center; }
+.totals .nums b { display: block; font-size: 16px; font-weight: 800; }
+.totals .nums span { font-size: 10px; font-weight: 650; color: var(--muted); }
+.totals .btn { width: auto; padding: 0 16px; flex: none; }
 .spinner { width: 18px; height: 18px; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* ---------- Historique ---------- */
-.avg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0 6px; }
-.avg .macro .val { font-size: 24px; }
-.day { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 10px; width: 100%; text-align: left; }
-.day:active { background: var(--card2); }
-.day .date { width: 48px; flex: none; text-align: center; }
-.day .date b { display: block; font-size: 22px; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
-.day .date span { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .05em; }
-.day .t { font-weight: 700; }
-.day .meta { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 3px; }
-.day .k { text-align: right; }
-.day .k b { font-size: 18px; font-weight: 800; display: block; }
-.day .k span { font-size: 11px; color: var(--muted); font-weight: 600; }
-/* ---------- Réglages ---------- */
-.group { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-bottom: 14px; }
-.group h3 { margin: 0 0 4px; font-size: 17px; font-weight: 750; }
-.group p { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
-.group p a { color: var(--lime); font-weight: 600; }
-.tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.tgrid .field { background: var(--bg2); }
-.keyrow { display: flex; gap: 8px; }
-.keyrow .field { flex: 1; background: var(--bg2); }
-.keyrow .glass { width: 50px; height: auto; border-radius: 16px; background: var(--bg2); }
-details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
-.version { text-align: center; color: var(--dim); font-size: 12px; margin: 22px 0 0; }
-.toast { position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 12px 18px; border-radius: 22px; font-size: 14px; font-weight: 650; z-index: 50; max-width: 90vw; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.4); animation: up .25s; }
-a { color: var(--lime); }
+
+/* ---------- Recette ---------- */
+.r-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin: 14px 16px 2px; line-height: 1.2; }
+.r-meta { margin: 0 16px; color: var(--muted); font-size: 13px; }
+.r-macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 14px 16px 0; }
+.r-macros div { background: var(--chip); border-radius: 12px; padding: 10px 4px; text-align: center; }
+.r-macros b { display: block; font-size: 18px; font-weight: 800; }
+.r-macros span { font-size: 11px; color: var(--muted); font-weight: 650; }
+.portion { display: flex; align-items: center; justify-content: space-between; margin: 14px 16px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
+.stepper { display: flex; align-items: center; gap: 12px; }
+.stepper button { width: 32px; height: 32px; border-radius: 50%; background: var(--chip); font-size: 18px; font-weight: 700; }
+.stepper b { min-width: 42px; text-align: center; }
+.r-sec { margin: 20px 16px 8px; font-size: 16px; font-weight: 700; }
+.ing { display: flex; gap: 12px; align-items: flex-start; padding: 9px 16px; width: 100%; text-align: left; font-size: 15px; }
+.ing .ck { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--dim); flex: none; display: grid; place-items: center; margin-top: 1px; }
+.ing.done .ck { background: var(--blue); border-color: var(--blue); color: #fff; }
+.ing.done .ck svg.i { width: 14px; height: 14px; stroke-width: 3; }
+.ing.done span { color: var(--muted); text-decoration: line-through; }
+.r-step { display: flex; gap: 12px; padding: 6px 16px; font-size: 15px; }
+.r-step b.n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--grad); color: #fff; display: grid; place-items: center; font-size: 12px; }
+.r-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 16px 0; }
+.r-tags span { background: var(--chip); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+.r-cta { position: sticky; bottom: 0; padding: 14px 16px calc(8px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); margin-top: 10px; }
+.r-cta .btn { height: 50px; font-size: 16px; border-radius: 12px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 60; max-width: 90vw; text-align: center; box-shadow: var(--shadow); animation: up .25s; }
 </style>
 </head>
 <body>
-<!-- ===== AUJOURD'HUI ===== -->
-<main id="view-today" class="wrap">
-<div class="top">
-<div>
-<div class="eyebrow" id="day-eyebrow"></div>
-<h1 id="today-title">Aujourd'hui</h1>
-</div>
-<button class="pill-btn" id="add-manual" aria-label="Ajouter sans photo"><svg class="i"><use href="#i-plus"/></svg>Sans photo</button>
-</div>
-<div class="week" id="week"></div>
-<div id="install-hint" class="banner warn hidden">
-<svg class="i"><use href="#i-share"/></svg>
-<div>Pour l'avoir comme une vraie app : <b>Partager</b> puis <b>Sur l'écran d'accueil</b>. Ouvre-la ensuite toujours depuis l'icône, c'est là que tes repas sont gardés.</div>
-</div>
-<div id="key-hint" class="banner hidden">
-<svg class="i"><use href="#i-spark"/></svg>
-<div>Ajoute ta clé Gemini gratuite dans <a href="#" data-go="settings">Réglages</a> pour l'analyse automatique. En attendant, utilise <b>Claude</b>.</div>
-</div>
-<section class="hero">
-<div class="hero-top">
-<div class="ring" id="ring"></div>
-<div class="stats" id="stats"></div>
-</div>
-<div class="macros" id="macro-bars"></div>
-</section>
-<div class="section-head"><h2>Repas</h2><span class="muted small" id="meal-count"></span></div>
-<div id="meal-list"></div>
+
+<!-- ===== FIL ===== -->
+<main id="view-feed" class="wrap">
+  <header class="ig-head">
+    <div class="logo">Mon Assiette</div>
+    <div class="head-btns">
+      <button class="ibtn" data-go="journal" aria-label="Mon journal"><svg class="i"><use href="#i-heart"/></svg><span class="dot hidden" id="feed-dot"></span></button>
+      <button class="ibtn" id="feed-add" aria-label="Ajouter un repas"><svg class="i"><use href="#i-plussq"/></svg></button>
+    </div>
+  </header>
+  <div class="stories" id="stories"></div>
+  <div id="install-hint" class="banner hidden"><svg class="i"><use href="#i-share"/></svg><div>Pour l'avoir comme une vraie app : <b>Partager</b> puis <b>Sur l'écran d'accueil</b>. Ouvre-la ensuite toujours depuis l'icône.</div></div>
+  <div id="budget"></div>
+  <div id="feed"></div>
 </main>
-<!-- ===== HISTORIQUE ===== -->
-<main id="view-history" class="wrap hidden">
-<div class="top"><div><div class="eyebrow">Ton suivi</div><h1>Historique</h1></div></div>
-<div class="avg" id="history-avg"></div>
-<div class="section-head"><h2>Jours</h2><span class="muted small">Touche un jour pour le modifier</span></div>
-<div id="history-list"></div>
+
+<!-- ===== EXPLORER ===== -->
+<main id="view-explore" class="wrap hidden">
+  <div style="height:8px"></div>
+  <label class="search"><svg class="i"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Rechercher une recette, un aliment…" autocomplete="off"></label>
+  <div class="chips" id="explore-chips"></div>
+  <div class="grid3" id="explore-grid"></div>
 </main>
+
+<!-- ===== JOURNAL ===== -->
+<main id="view-journal" class="wrap hidden">
+  <header class="ig-head">
+    <div class="head-title" id="j-title">Aujourd'hui</div>
+    <div class="head-btns"><button class="ibtn" id="add-manual" aria-label="Ajouter sans photo"><svg class="i"><use href="#i-plussq"/></svg></button></div>
+  </header>
+  <div class="week" id="week"></div>
+  <div id="key-hint" class="banner hidden"><svg class="i"><use href="#i-spark"/></svg><div>Ajoute ta clé Gemini gratuite dans <a href="#" data-go="settings">Réglages</a> pour analyser tes photos. En attendant, utilise <b>Claude</b>.</div></div>
+  <section class="dash">
+    <div class="dash-top"><div class="ring" id="ring"></div><div class="stats" id="stats"></div></div>
+    <div class="macros" id="macro-cards"></div>
+  </section>
+  <div class="sec"><h2>Repas</h2><span class="muted" id="meal-count" style="font-size:13px"></span></div>
+  <div id="meal-list"></div>
+  <div class="sec"><h2>Idées pour finir ta journée</h2><button class="link" data-go="explore">Voir tout</button></div>
+  <div class="grid3" id="j-ideas" style="padding-bottom:10px"></div>
+</main>
+
+<!-- ===== PROFIL ===== -->
+<main id="view-profile" class="wrap hidden">
+  <header class="ig-head">
+    <div class="head-title">moi.en.seche</div>
+    <div class="head-btns"><button class="ibtn" data-go="settings" aria-label="Réglages"><svg class="i"><use href="#i-menu"/></svg></button></div>
+  </header>
+  <div class="prof"><div class="big-av"><i>💪</i></div><div class="counts" id="p-counts"></div></div>
+  <div class="bio" id="p-bio"></div>
+  <div class="pbtns"><button class="pbtn" data-go="settings">Modifier mes objectifs</button><button class="pbtn" id="p-export">Sauvegarder</button></div>
+  <div class="hl" id="p-hl"></div>
+  <div class="ptabs" id="ptabs">
+    <button class="ptab on" data-ptab="grid" aria-label="Mes repas"><svg class="i"><use href="#i-grid"/></svg></button>
+    <button class="ptab" data-ptab="days" aria-label="Mes jours"><svg class="i"><use href="#i-cal"/></svg></button>
+    <button class="ptab" data-ptab="saved" aria-label="Enregistrés"><svg class="i"><use href="#i-bookmark"/></svg></button>
+  </div>
+  <div id="p-content"></div>
+</main>
+
 <!-- ===== RÉGLAGES ===== -->
 <main id="view-settings" class="wrap hidden">
-<div class="top"><div><div class="eyebrow">Mon Assiette</div><h1>Réglages</h1></div></div>
-<div style="height:18px"></div>
-<section class="group">
-<h3>Objectifs du jour</h3>
-<p>Pour perdre environ 0,5 kg par semaine. Si ton poids ne bouge pas après 2 à 3 semaines, baisse de 150 à 200 kcal.</p>
-<div class="tgrid">
-<div class="field"><label for="t-kcal">Calories</label><input id="t-kcal" inputmode="numeric" class="num"></div>
-<div class="field"><label for="t-p">Protéines (g)</label><input id="t-p" inputmode="numeric" class="num"></div>
-<div class="field"><label for="t-c">Glucides (g)</label><input id="t-c" inputmode="numeric" class="num"></div>
-<div class="field"><label for="t-f">Lipides (g)</label><input id="t-f" inputmode="numeric" class="num"></div>
-</div>
-<button class="btn" id="save-targets">Enregistrer les objectifs</button>
-</section>
-<section class="group">
-<h3>Analyse automatique</h3>
-<p>Ta clé Gemini gratuite reste uniquement sur ce téléphone. Pour l'obtenir : <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, puis « Create API key ».</p>
-<div class="keyrow">
-<div class="field"><label for="api-key">Clé API Gemini</label><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…"></div>
-<button class="glass" id="toggle-key" aria-label="Afficher la clé"><svg class="i"><use href="#i-eye"/></svg></button>
-</div>
-<div id="key-status" style="margin-top:12px"></div>
-<button class="btn primary" id="save-key" style="margin-top:12px">Enregistrer et tester</button>
-<details>
-<summary>Réglage avancé</summary>
-<div class="field" style="margin-top:10px;background:var(--bg2)"><label for="model">Modèle Gemini</label><input id="model" autocapitalize="off" spellcheck="false" placeholder="automatique"></div>
-</details>
-</section>
-<section class="group">
-<h3>Mes données</h3>
-<p>Tout est gardé sur ce téléphone. Exporte de temps en temps pour garder une copie.</p>
-<button class="btn" id="export"><svg class="i"><use href="#i-down"/></svg>Exporter mes données</button>
-<button class="btn" id="import-btn"><svg class="i"><use href="#i-up"/></svg>Importer une sauvegarde</button>
-<input type="file" id="import-file" accept="application/json,.json" class="hidden">
-<button class="btn danger" id="wipe"><svg class="i"><use href="#i-trash"/></svg>Tout effacer</button>
-</section>
-<p class="version">Mon Assiette · V1</p>
+  <header class="ig-head">
+    <button class="ibtn" data-go="profile" aria-label="Retour"><svg class="i"><use href="#i-left"/></svg></button>
+    <div class="head-title">Réglages</div><div style="width:26px"></div>
+  </header>
+  <div style="height:8px"></div>
+  <section class="group">
+    <h3>Objectifs du jour</h3>
+    <p>Pour perdre environ 0,5 kg par semaine. Si ton poids ne bouge pas après 2 à 3 semaines, baisse de 150 à 200 kcal.</p>
+    <div class="tgrid">
+      <div class="field"><label for="t-kcal">Calories</label><input id="t-kcal" inputmode="numeric" class="num"></div>
+      <div class="field"><label for="t-p">Protéines (g)</label><input id="t-p" inputmode="numeric" class="num"></div>
+      <div class="field"><label for="t-c">Glucides (g)</label><input id="t-c" inputmode="numeric" class="num"></div>
+      <div class="field"><label for="t-f">Lipides (g)</label><input id="t-f" inputmode="numeric" class="num"></div>
+    </div>
+    <button class="btn primary" id="save-targets">Enregistrer les objectifs</button>
+  </section>
+  <section class="group">
+    <h3>Analyse des photos</h3>
+    <p>Ta clé Gemini gratuite reste uniquement sur ce téléphone. Pour l'obtenir : <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, puis « Create API key ».</p>
+    <div class="keyrow">
+      <div class="field"><label for="api-key">Clé API Gemini</label><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…"></div>
+      <button class="sq" id="toggle-key" aria-label="Afficher la clé"><svg class="i"><use href="#i-eye"/></svg></button>
+    </div>
+    <div id="key-status"></div>
+    <button class="btn primary" id="save-key" style="margin-top:12px">Enregistrer et tester</button>
+    <details><summary>Réglage avancé</summary><div class="field" style="margin-top:10px"><label for="model">Modèle Gemini</label><input id="model" autocapitalize="off" spellcheck="false" placeholder="automatique"></div></details>
+  </section>
+  <section class="group">
+    <h3>Mes données</h3>
+    <p>Tout est gardé sur ce téléphone. Exporte de temps en temps pour garder une copie.</p>
+    <button class="btn" id="export"><svg class="i"><use href="#i-down"/></svg>Exporter mes données</button>
+    <button class="btn" id="import-btn"><svg class="i"><use href="#i-up"/></svg>Importer une sauvegarde</button>
+    <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+    <button class="btn danger" id="wipe"><svg class="i"><use href="#i-trash"/></svg>Tout effacer</button>
+  </section>
+  <p class="version">Mon Assiette · V2</p>
 </main>
+
 <!-- ===== BARRE DU BAS ===== -->
 <nav class="tabbar">
-<div class="in">
-<button class="tab on" data-tab="today"><svg class="i"><use href="#i-home"/></svg>Aujourd'hui</button>
-<button class="tab" data-tab="history"><svg class="i"><use href="#i-cal"/></svg>Historique</button>
-<button class="shoot" id="shoot" aria-label="Prendre une photo"><svg class="i"><use href="#i-cam"/></svg></button>
-<button class="tab" id="tab-claude"><svg class="i"><use href="#i-clip"/></svg>Claude</button>
-<button class="tab" data-tab="settings"><svg class="i"><use href="#i-gear"/></svg>Réglages</button>
-</div>
+  <div class="in">
+    <button class="tab on" data-tab="feed" aria-label="Accueil"><svg class="i"><use href="#i-home"/></svg></button>
+    <button class="tab" data-tab="explore" aria-label="Explorer"><svg class="i"><use href="#i-search"/></svg></button>
+    <button class="tab" id="tab-add" aria-label="Ajouter"><svg class="i"><use href="#i-plussq"/></svg></button>
+    <button class="tab" data-tab="journal" aria-label="Mon journal"><svg class="i"><use href="#i-flame"/></svg></button>
+    <button class="tab" data-tab="profile" aria-label="Profil"><span class="me-av">💪</span></button>
+  </div>
 </nav>
 <input type="file" id="photo-input" accept="image/*" class="hidden">
+
+<!-- ===== MENU D'AJOUT ===== -->
+<div id="add-menu" class="hidden">
+  <div class="scrim" data-close-menu></div>
+  <div class="menu">
+    <div class="grab"></div>
+    <h4>Ajouter un repas</h4>
+    <button class="mi" data-add="photo"><span class="ic g"><svg class="i"><use href="#i-cam"/></svg></span><div><b>Prendre une photo</b><span>L'IA estime calories et macros</span></div></button>
+    <button class="mi" data-add="claude"><span class="ic"><svg class="i"><use href="#i-clip"/></svg></span><div><b>Analyser avec Claude</b><span>Photo envoyée dans ton app Claude</span></div></button>
+    <button class="mi" data-add="recipe"><span class="ic"><svg class="i"><use href="#i-book"/></svg></span><div><b>Choisir une recette</b><span>Les plats de sèche, déjà calculés</span></div></button>
+    <button class="mi" data-add="manual"><span class="ic"><svg class="i"><use href="#i-edit"/></svg></span><div><b>Saisir à la main</b><span>Tu entres les valeurs toi-même</span></div></button>
+  </div>
+</div>
+
+<!-- ===== FEUILLE : RECETTE ===== -->
+<section id="recipe" class="sheet hidden" aria-modal="true" role="dialog">
+  <div class="sheet-head">
+    <button class="ibtn" id="r-close" aria-label="Fermer"><svg class="i"><use href="#i-left"/></svg></button>
+    <div class="ttl">Recette</div>
+    <button class="ibtn" id="r-save" aria-label="Enregistrer"><svg class="i"><use href="#i-bookmark"/></svg></button>
+  </div>
+  <div id="r-body"></div>
+</section>
+
 <!-- ===== FEUILLE : REPAS ===== -->
 <section id="sheet" class="sheet hidden" aria-modal="true" role="dialog">
-<div class="sheet-head" id="sheet-head">
-<button class="glass" id="sheet-cancel" aria-label="Fermer"><svg class="i"><use href="#i-x"/></svg></button>
-<div class="ttl" id="sheet-title">Repas</div>
-<button class="glass" id="sheet-delete" aria-label="Supprimer le repas"><svg class="i"><use href="#i-trash"/></svg></button>
-</div>
-<div class="photo-hero hidden" id="photo-hero"><img id="sheet-photo" alt="Photo du repas"></div>
-<div class="wrap content">
-<div class="seg" id="type-seg"></div>
-<div class="when">
-<div class="field"><label for="m-date">Jour</label><input type="date" id="m-date"></div>
-<div class="field"><label for="m-time">Heure</label><input type="time" id="m-time"></div>
-</div>
-<div id="analyze-box" class="ai-card">
-<div class="field" style="background:var(--bg2)"><label for="m-note">Précision pour l'IA (facultatif)</label><textarea id="m-note" rows="2" placeholder="ex. 200 g de riz, poulet grillé, sauce à part"></textarea></div>
-<div id="analyze-msg"></div>
-<div class="btns">
-<button class="btn primary" id="analyze"><svg class="i"><use href="#i-spark"/></svg>Analyser la photo</button>
-<button class="btn" id="open-claude"><svg class="i"><use href="#i-clip"/></svg>Coller depuis Claude</button>
-</div>
-</div>
-<div id="claude-box" class="claude hidden">
-<h3>Analyse avec ton Claude Pro</h3>
-<div class="step"><b class="n">1</b><div>Copie la consigne ci-dessous.</div></div>
-<div class="step"><b class="n">2</b><div>Dans l'app Claude : ajoute la photo, colle la consigne, envoie.</div></div>
-<div class="step"><b class="n">3</b><div>Copie la réponse de Claude, reviens ici et colle-la.</div></div>
-<button class="btn" id="copy-prompt" style="margin-top:6px"><svg class="i"><use href="#i-copy"/></svg>Copier la consigne</button>
-<button class="btn primary" id="paste-claude"><svg class="i"><use href="#i-clip"/></svg>Coller la réponse</button>
-<div class="field" style="margin-top:10px;background:var(--bg2)"><label for="claude-text">Ou colle-la ici à la main</label><textarea id="claude-text" rows="3" placeholder='{"aliments": [...]}'></textarea></div>
-<button class="btn" id="import-claude" style="margin-top:10px">Utiliser ce texte</button>
-</div>
-<div id="confidence"></div>
-<div class="section-head"><h2>Aliments</h2><span class="muted small" id="item-count"></span></div>
-<div id="items"></div>
-<button class="add-item" id="add-item"><svg class="i"><use href="#i-plus"/></svg>Ajouter un aliment</button>
-<div class="totals">
-<div class="box">
-<div class="nums num" id="sheet-totals"></div>
-<button class="btn primary" id="sheet-save"><svg class="i"><use href="#i-check"/></svg>Enregistrer</button>
-</div>
-</div>
-</div>
+  <div class="sheet-head">
+    <button class="ibtn" id="sheet-cancel" aria-label="Fermer"><svg class="i"><use href="#i-x"/></svg></button>
+    <div class="ttl" id="sheet-title">Repas</div>
+    <button class="ibtn" id="sheet-delete" aria-label="Supprimer le repas"><svg class="i"><use href="#i-trash"/></svg></button>
+  </div>
+  <img class="sheet-photo hidden" id="sheet-photo" alt="Photo du repas">
+  <div class="wrap content">
+    <div class="seg" id="type-seg"></div>
+    <div class="when">
+      <div class="field"><label for="m-date">Jour</label><input type="date" id="m-date"></div>
+      <div class="field"><label for="m-time">Heure</label><input type="time" id="m-time"></div>
+    </div>
+    <div id="analyze-box" class="box">
+      <div class="field"><label for="m-note">Précision pour l'IA (facultatif)</label><textarea id="m-note" rows="2" placeholder="ex. 200 g de riz, poulet grillé, sauce à part"></textarea></div>
+      <div id="analyze-msg"></div>
+      <button class="btn primary" id="analyze"><svg class="i"><use href="#i-spark"/></svg>Analyser la photo</button>
+      <button class="btn" id="open-claude"><svg class="i"><use href="#i-clip"/></svg>Coller depuis Claude</button>
+    </div>
+    <div id="claude-box" class="box hidden">
+      <h3>Analyse avec ton Claude</h3>
+      <div class="step"><b class="n">1</b><div>Copie la consigne ci-dessous.</div></div>
+      <div class="step"><b class="n">2</b><div>Dans l'app Claude : ajoute la photo, colle la consigne, envoie.</div></div>
+      <div class="step"><b class="n">3</b><div>Copie la réponse de Claude, reviens ici et colle-la.</div></div>
+      <button class="btn" id="copy-prompt"><svg class="i"><use href="#i-copy"/></svg>Copier la consigne</button>
+      <button class="btn primary" id="paste-claude"><svg class="i"><use href="#i-clip"/></svg>Coller la réponse</button>
+      <div class="field" style="margin-top:10px"><label for="claude-text">Ou colle-la ici à la main</label><textarea id="claude-text" rows="3" placeholder='{"aliments": [...]}'></textarea></div>
+      <button class="btn" id="import-claude">Utiliser ce texte</button>
+    </div>
+    <div id="confidence"></div>
+    <div class="sec" style="padding:18px 0 10px"><h2>Aliments</h2><span class="muted" style="font-size:13px" id="item-count"></span></div>
+    <div id="items"></div>
+    <button class="add-item" id="add-item"><svg class="i"><use href="#i-plus"/></svg>Ajouter un aliment</button>
+    <div class="totals"><div class="bx"><div class="nums num" id="sheet-totals"></div><button class="btn primary" id="sheet-save">Enregistrer</button></div></div>
+  </div>
 </section>
+
 <!-- Icônes -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></symbol>
-<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></symbol>
-<symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8.5a2 2 0 0 1 2-2h1.8l1.6-2.2h5.2l1.6 2.2H18a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/></symbol>
-<symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></symbol>
-<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
-<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
-<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
-<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></symbol>
-<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
-<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
-<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
-<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
-<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></symbol>
-<symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
-<symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
-<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></symbol>
-<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
-<symbol id="i-fork" viewBox="0 0 24 24"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 21V3c-2.5 1-4 3.5-4 7v3h4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path class="fillable" d="M3.5 10.2 12 3.5l8.5 6.7V20a1 1 0 0 1-1 1h-5v-6.5h-5V21h-5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l5 5"/></symbol>
+  <symbol id="i-plussq" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path class="fillable" d="M12 21.5c-4 0-7-2.7-7-6.6 0-3.4 2.2-5.4 3.7-7.4.4 1.7 1.4 2.8 2.5 3.3-.3-3 1-6.1 3.6-7.8-.2 2.5.9 4.3 2.4 6 1.4 1.6 2.8 3.4 2.8 6 0 3.8-3 6.5-8 6.5z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-8.5-5.1-8.5-11.1A4.8 4.8 0 0 1 8.3 4.5c1.6 0 2.9.8 3.7 2 .8-1.2 2.1-2 3.7-2a4.8 4.8 0 0 1 4.8 4.9c0 6-8.5 11.1-8.5 11.1z"/></symbol>
+  <symbol id="i-comment" viewBox="0 0 24 24"><path d="M20.7 16.6A9 9 0 1 0 17 20l3.9 1.1z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21.5 3 10.6 13.9M21.5 3l-6.8 18-4.1-7.1L3.5 9.8z"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5.3L5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8.5a2 2 0 0 1 2-2h1.8l1.6-2.2h5.2l1.6 2.2H18a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-verified" viewBox="0 0 24 24"><path fill="#0095f6" stroke="none" d="M12 1.5l2.6 1.9 3.2-.1 1 3 2.7 1.9-1 3 1 3-2.7 1.9-1 3-3.2-.1L12 22.5l-2.6-1.9-3.2.1-1-3-2.7-1.9 1-3-1-3 2.7-1.9 1-3 3.2.1z"/><path stroke="#fff" stroke-width="2.4" fill="none" d="M7.8 12.2l2.8 2.8 5.6-5.6"/></symbol>
 </svg>
+
+<script src="recipes.js"></script>
 <script>
 'use strict';
 /* =========================================================
-Mon Assiette — V1
-Toutes les données restent sur le téléphone :
-- repas et réglages : localStorage
-- petites photos : IndexedDB
-========================================================= */
+   Mon Assiette — V2 (style Instagram)
+   Toutes les données restent sur le téléphone :
+   - repas, réglages, j'aime, enregistrés : localStorage
+   - petites photos : IndexedDB
+   ========================================================= */
+const RECIPES = window.RECIPES || [];
+const CATS = window.CATS || [];
 const DEFAULTS = { kcal: 2500, p: 160, c: 305, f: 70, key: '', model: '' };
 const TYPES = [
-{ id: 'petitdej', label: 'Petit-déj', long: 'Petit-déjeuner' },
-{ id: 'dejeuner', label: 'Déjeuner', long: 'Déjeuner' },
-{ id: 'diner', label: 'Dîner', long: 'Dîner' },
-{ id: 'collation', label: 'Collation', long: 'Collation' },
+  { id: 'petitdej', label: 'Petit-déj' },
+  { id: 'dejeuner', label: 'Déjeuner' },
+  { id: 'diner', label: 'Dîner' },
+  { id: 'collation', label: 'Collation' },
 ];
 const MODEL_CANDIDATES = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
 const icon = (id, cls = 'i') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
@@ -402,49 +563,54 @@ const num = (v) => { const n = parseFloat(String(v ?? '').replace(',', '.')); re
 const r0 = (n) => Math.round(n);
 const r1 = (n) => Math.round(n * 10) / 10;
 const fmt = (n) => r0(n).toLocaleString('fr-FR');
+
 /* ---------- Stockage ---------- */
 const store = {
-get(k, d) { try { const v = localStorage.getItem('assiette.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-set(k, v) { try { localStorage.setItem('assiette.' + k, JSON.stringify(v)); return true; } catch (e) { toast("Stockage plein : exporte puis efface d'anciennes données."); return false; } },
+  get(k, d) { try { const v = localStorage.getItem('assiette.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('assiette.' + k, JSON.stringify(v)); return true; } catch (e) { toast("Stockage plein : exporte puis efface d'anciennes données."); return false; } },
 };
 let settings = Object.assign({}, DEFAULTS, store.get('settings', {}));
 let meals = store.get('meals', []);
+let savedR = new Set(store.get('saved', []));
+let likedR = new Set(store.get('liked', []));
 const saveMeals = () => store.set('meals', meals);
 const saveSettings = () => store.set('settings', settings);
+
 const photoDB = (() => {
-let dbp = null;
-const open = () => dbp || (dbp = new Promise((res, rej) => {
-if (!('indexedDB' in window)) return rej(new Error('no idb'));
-const rq = indexedDB.open('assiette', 1);
-rq.onupgradeneeded = () => rq.result.createObjectStore('photos');
-rq.onsuccess = () => res(rq.result);
-rq.onerror = () => rej(rq.error);
-}));
-const tx = async (mode, fn) => {
-const db = await open();
-return new Promise((res, rej) => {
-const t = db.transaction('photos', mode); const s = t.objectStore('photos');
-const r = fn(s); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
-});
-};
-return {
-get: (id) => tx('readonly', (s) => s.get(id)).catch(() => null),
-put: (id, v) => tx('readwrite', (s) => s.put(v, id)).catch(() => null),
-del: (id) => tx('readwrite', (s) => s.delete(id)).catch(() => null),
-all: async () => {
-try {
-const db = await open();
-return await new Promise((res, rej) => {
-const out = {}; const t = db.transaction('photos'); const c = t.objectStore('photos').openCursor();
-c.onsuccess = () => { const cur = c.result; if (cur) { out[cur.key] = cur.value; cur.continue(); } };
-t.oncomplete = () => res(out); t.onerror = () => rej(t.error);
-});
-} catch { return {}; }
-},
-clear: () => tx('readwrite', (s) => s.clear()).catch(() => null),
-};
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    if (!('indexedDB' in window)) return rej(new Error('no idb'));
+    const rq = indexedDB.open('assiette', 1);
+    rq.onupgradeneeded = () => rq.result.createObjectStore('photos');
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => rej(rq.error);
+  }));
+  const tx = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('photos', mode); const s = t.objectStore('photos');
+      const r = fn(s); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
+    });
+  };
+  return {
+    get: (id) => tx('readonly', (s) => s.get(id)).catch(() => null),
+    put: (id, v) => tx('readwrite', (s) => s.put(v, id)).catch(() => null),
+    del: (id) => tx('readwrite', (s) => s.delete(id)).catch(() => null),
+    all: async () => {
+      try {
+        const db = await open();
+        return await new Promise((res, rej) => {
+          const out = {}; const t = db.transaction('photos'); const c = t.objectStore('photos').openCursor();
+          c.onsuccess = () => { const cur = c.result; if (cur) { out[cur.key] = cur.value; cur.continue(); } };
+          t.oncomplete = () => res(out); t.onerror = () => rej(t.error);
+        });
+      } catch { return {}; }
+    },
+    clear: () => tx('readwrite', (s) => s.clear()).catch(() => null),
+  };
 })();
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
 /* ---------- Dates ---------- */
 const pad = (n) => String(n).padStart(2, '0');
 const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -454,490 +620,720 @@ const toDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return n
 const shiftDate = (iso, days) => { const d = toDate(iso); d.setDate(d.getDate() + days); return isoDate(d); };
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 function dayName(iso) {
-const t = todayISO();
-if (iso === t) return "Aujourd'hui";
-if (iso === shiftDate(t, -1)) return 'Hier';
-return cap(toDate(iso).toLocaleDateString('fr-FR', { weekday: 'long' }));
+  const t = todayISO();
+  if (iso === t) return "Aujourd'hui";
+  if (iso === shiftDate(t, -1)) return 'Hier';
+  return cap(toDate(iso).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' }));
 }
-const longDate = (iso) => toDate(iso).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 function guessType(time) {
-const [h, m] = time.split(':').map(Number); const x = h + m / 60;
-if (x < 10.5) return 'petitdej';
-if (x < 15) return 'dejeuner';
-if (x < 18) return 'collation';
-return 'diner';
+  const [h, m] = time.split(':').map(Number); const x = h + m / 60;
+  if (x < 10.5) return 'petitdej';
+  if (x < 15) return 'dejeuner';
+  if (x < 18) return 'collation';
+  return 'diner';
 }
+
 /* ---------- Calculs ---------- */
 const sumItems = (items) => items.reduce((a, it) => ({ kcal: a.kcal + num(it.kcal), p: a.p + num(it.p), c: a.c + num(it.c), f: a.f + num(it.f) }), { kcal: 0, p: 0, c: 0, f: 0 });
 const mealsOf = (iso) => meals.filter((m) => m.date === iso).sort((a, b) => a.time.localeCompare(b.time));
 const dayTotals = (iso) => sumItems(mealsOf(iso).flatMap((m) => m.items));
+
 let toastTimer;
 function toast(msg) {
-let el = $('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
-el.textContent = msg; el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
-clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.add('hidden'), 2800);
+  let el = $('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.add('hidden'), 2800);
 }
+const banner = (ic, html, cls = '') => `<div class="banner ${cls}" style="margin:12px 0 0">${icon(ic)}<div>${html}</div></div>`;
+
 /* =========================================================
-Écran Aujourd'hui
-========================================================= */
+   Recettes : visuels et publications
+   ========================================================= */
+const R = (id) => RECIPES.find((r) => r.id === id);
+const catOf = (id) => CATS.find((c) => c.id === id) || { label: '', emoji: '🍽️' };
+const AUTHORS = { petitdej: 'matin.fit', dejeuner: 'midi.healthy', diner: 'soir.light', snack: 'snack.protein', batch: 'mealprep.club' };
+function visual(r, cls = 'visual') {
+  const e = r.emoji || ['🍽️'];
+  return `<div class="${cls}" style="background:linear-gradient(135deg, ${r.bg[0]}, ${r.bg[1]})" data-vis="${r.id}">
+      ${cls === 'visual' ? '<div class="plate"></div>' : ''}
+      ${e[1] ? `<span class="e2">${e[1]}</span>` : ''}${e[2] && cls === 'visual' ? `<span class="e3">${e[2]}</span>` : ''}
+      <span class="e1">${e[0]}</span>
+      ${cls === 'visual' ? `<span class="time">⏱ ${r.temps} min</span>` : ''}
+      ${cls === 'visual' ? `<div class="tagkcal"><span>🔥 ${r.kcal} kcal</span><span>💪 ${r.p} g prot</span></div>` : ''}
+      ${cls === 'visual' ? `<svg class="i pop" viewBox="0 0 24 24"><use href="#i-heart"/></svg>` : ''}
+    </div>`;
+}
+function likesText(r) {
+  // Petit compteur stable par recette, pour l'ambiance « réseau social »
+  let h = 0; for (const ch of r.id) h = (h * 31 + ch.charCodeAt(0)) % 9973;
+  const n = 800 + (h * 7) % 4200 + (likedR.has(r.id) ? 1 : 0);
+  return `${n.toLocaleString('fr-FR')} J'aime`;
+}
+function postHTML(r) {
+  const liked = likedR.has(r.id), saved = savedR.has(r.id);
+  return `<article class="post" data-post="${r.id}">
+      <div class="post-head">
+        <span class="avatar"><i>${catOf(r.cat).emoji}</i></span>
+        <div class="grow"><div class="who">${AUTHORS[r.cat] || 'mon.assiette'}${icon('verified', 'v')}</div><div class="where">${catOf(r.cat).label} · ${r.temps} min</div></div>
+      </div>
+      ${visual(r)}
+      <div class="actions">
+        <button class="ibtn ${liked ? 'liked' : ''}" data-like="${r.id}" aria-label="J'aime">${icon('heart')}</button>
+        <button class="ibtn" data-open="${r.id}" aria-label="Voir la recette">${icon('comment')}</button>
+        <button class="ibtn" data-share="${r.id}" aria-label="Partager">${icon('send')}</button>
+        <button class="ibtn save ${saved ? 'saved' : ''}" data-save="${r.id}" aria-label="Enregistrer">${icon('bookmark')}</button>
+      </div>
+      <div class="likes num" data-likes="${r.id}">${likesText(r)}</div>
+      <div class="caption"><b>${AUTHORS[r.cat] || 'mon.assiette'}</b> ${esc(r.titre)} <span class="tags">${r.tags.map((t) => '#' + t.toLowerCase().replace(/[^a-zà-ÿ0-9]+/gi, '')).join(' ')} #seche</span></div>
+      <div class="macro-line num"><span><b>${r.kcal}</b> kcal</span><span><i style="background:var(--p)"></i><b>${r.p}</b> g P</span><span><i style="background:var(--c)"></i><b>${r.c}</b> g G</span><span><i style="background:var(--f)"></i><b>${r.f}</b> g L</span></div>
+      <button class="more" data-open="${r.id}">Voir la recette (${r.ingredients.length} ingrédients)</button>
+      <button class="eat" data-eat="${r.id}">${icon('plus')}J'ai mangé ça</button>
+    </article>`;
+}
+
+/* ---------- Fil d'actualité ---------- */
+let feedCat = 'all';
+function catForNow() {
+  const h = new Date().getHours();
+  if (h < 10) return 'petitdej';
+  if (h < 15) return 'dejeuner';
+  if (h < 18) return 'snack';
+  return 'diner';
+}
+function feedList() {
+  if (feedCat === 'fav') return RECIPES.filter((r) => savedR.has(r.id));
+  if (feedCat !== 'all') return RECIPES.filter((r) => r.cat === feedCat);
+  // Le repas du moment en premier, puis le reste mélangé (même ordre toute la journée)
+  const now = catForNow(); const seed = todayISO().split('-').reduce((a, b) => a + +b, 0);
+  const score = (r) => { let h = seed; for (const ch of r.id) h = (h * 17 + ch.charCodeAt(0)) % 1000; return h; };
+  const left = settings.kcal - dayTotals(todayISO()).kcal;
+  return RECIPES.slice().sort((a, b) => ((b.cat === now) - (a.cat === now)) || ((a.kcal <= left) === (b.kcal <= left) ? 0 : (a.kcal <= left ? -1 : 1)) || score(a) - score(b));
+}
+function renderStories() {
+  const t = dayTotals(todayISO()); const pct = settings.kcal ? Math.min(t.kcal / settings.kcal, 1) * 100 : 0;
+  const left = settings.kcal - t.kcal;
+  let html = `<button class="story me ${feedCat === 'me' ? 'on' : ''}" data-go="journal"><span class="ring"><span class="in"><span class="av" style="--pct:${pct}%"><b class="num">${fmt(Math.abs(left))}<small>${left >= 0 ? 'restantes' : 'en trop'}</small></b></span></span></span><span class="lbl">Ma journée</span></button>`;
+  html += CATS.map((c) => `<button class="story ${feedCat === c.id ? 'on' : ''} ${feedCat !== 'all' && feedCat !== c.id ? 'seen' : ''}" data-cat="${c.id}"><span class="ring"><span class="in"><span class="av">${c.emoji}</span></span></span><span class="lbl">${c.label}</span></button>`).join('');
+  $('#stories').innerHTML = html;
+}
+function renderFeed() {
+  renderStories();
+  const t = dayTotals(todayISO()); const left = settings.kcal - t.kcal; const pl = settings.p - t.p;
+  $('#budget').innerHTML = `<div class="budget num"><span>${left >= 0 ? `Il te reste <b>${fmt(left)} kcal</b> et <b>${r0(Math.max(pl, 0))} g</b> de protéines aujourd'hui` : `Tu as dépassé de <b>${fmt(-left)} kcal</b> aujourd'hui`}</span><button class="go" data-go="journal">Journal</button></div>`;
+  $('#feed-dot').classList.toggle('hidden', mealsOf(todayISO()).length > 0);
+  const list = feedList();
+  if (!list.length) {
+    $('#feed').innerHTML = `<div class="empty"><div class="ico">${icon('bookmark')}</div><b>Rien d'enregistré</b>Touche le signet sous une recette pour la retrouver ici.</div>`;
+    return;
+  }
+  $('#feed').innerHTML = list.map(postHTML).join('') + `<div class="end"><div class="ok">${icon('check')}</div><b>Tu es à jour</b>Tu as vu toutes les recettes${feedCat === 'all' ? '' : ' de cette catégorie'}.</div>`;
+}
+
+/* ---------- Explorer ---------- */
+let exploreCat = 'all';
+const EXTRA_CHIPS = [{ id: 'fit', label: '✅ Rentre dans mon budget' }, { id: 'prot', label: '💪 +40 g prot' }, { id: 'fast', label: '⚡ -15 min' }];
+function exploreList() {
+  const q = $('#q').value.trim().toLowerCase();
+  const left = settings.kcal - dayTotals(todayISO()).kcal;
+  return RECIPES.filter((r) => {
+    if (exploreCat === 'fav' && !savedR.has(r.id)) return false;
+    if (exploreCat === 'fit' && r.kcal > left) return false;
+    if (exploreCat === 'prot' && r.p < 40) return false;
+    if (exploreCat === 'fast' && r.temps > 15) return false;
+    if (!['all', 'fav', 'fit', 'prot', 'fast'].includes(exploreCat) && r.cat !== exploreCat) return false;
+    if (!q) return true;
+    return (r.titre + ' ' + r.tags.join(' ') + ' ' + r.ingredients.join(' ')).toLowerCase().includes(q);
+  });
+}
+function tileHTML(r, i) {
+  return `<button class="tile ${i % 10 === 2 || i % 10 === 5 ? 'tall' : ''}" data-open="${r.id}" style="background:linear-gradient(135deg, ${r.bg[0]}, ${r.bg[1]})">
+      <span class="e2">${r.emoji[1] || ''}</span><span class="e1">${r.emoji[0]}</span>
+      <span class="ov num"><span>${r.kcal} kcal</span><span>${r.p} g P</span></span></button>`;
+}
+function renderExplore() {
+  const chips = CATS.filter((c) => c.id !== 'fav').concat(EXTRA_CHIPS, [{ id: 'fav', label: '🔖 Enregistrés' }]);
+  $('#explore-chips').innerHTML = chips.map((c) => `<button class="chip ${exploreCat === c.id ? 'on' : ''}" data-chip="${c.id}">${c.emoji && !c.label.includes(c.emoji) ? c.emoji + ' ' : ''}${c.label}</button>`).join('');
+  const list = exploreList();
+  $('#explore-grid').innerHTML = list.length ? list.map(tileHTML).join('') : `<div class="empty" style="grid-column:1/-1"><div class="ico">${icon('search')}</div><b>Aucun résultat</b>Essaie un autre mot ou un autre filtre.</div>`;
+}
+
+/* ---------- Fiche recette ---------- */
+let openR = null; let portion = 1; let checked = new Set();
+function openRecipe(id) {
+  const r = R(id); if (!r) return;
+  openR = r; portion = 1; checked = new Set();
+  renderRecipe();
+  $('#recipe').classList.remove('hidden'); $('#recipe').scrollTop = 0; document.body.style.overflow = 'hidden';
+}
+function closeRecipe() { $('#recipe').classList.add('hidden'); if ($('#sheet').classList.contains('hidden')) document.body.style.overflow = ''; openR = null; }
+function renderRecipe() {
+  const r = openR; const k = portion;
+  $('#r-save').classList.toggle('saved', savedR.has(r.id));
+  $('#r-body').innerHTML = `
+    ${visual(r)}
+    <div class="r-title">${esc(r.titre)}</div>
+    <div class="r-meta">${catOf(r.cat).emoji} ${catOf(r.cat).label} · ⏱ ${r.temps} min · par ${AUTHORS[r.cat] || 'mon.assiette'}</div>
+    <div class="r-tags">${r.tags.map((t) => `<span>${esc(t)}</span>`).join('')}</div>
+    <div class="r-macros num">
+      <div><b>${fmt(r.kcal * k)}</b><span>kcal</span></div>
+      <div><b style="color:var(--p)">${r0(r.p * k)}</b><span>Prot. (g)</span></div>
+      <div><b style="color:var(--c)">${r0(r.c * k)}</b><span>Gluc. (g)</span></div>
+      <div><b style="color:var(--f)">${r0(r.f * k)}</b><span>Lip. (g)</span></div>
+    </div>
+    <div class="portion"><div><b>Portion</b><div class="muted" style="font-size:12px">Valeurs ajustées automatiquement</div></div>
+      <div class="stepper"><button id="p-minus" aria-label="Moins">−</button><b class="num">×${String(k).replace('.', ',')}</b><button id="p-plus" aria-label="Plus">+</button></div></div>
+    <div class="r-sec">Ingrédients <span class="muted" style="font-weight:500;font-size:13px">(pour 1 portion)</span></div>
+    ${r.ingredients.map((x, i) => `<button class="ing ${checked.has(i) ? 'done' : ''}" data-ing="${i}"><span class="ck">${checked.has(i) ? icon('check') : ''}</span><span>${esc(x)}</span></button>`).join('')}
+    <div class="r-sec">Préparation</div>
+    ${r.etapes.map((x, i) => `<div class="r-step"><b class="n">${i + 1}</b><div>${esc(x)}</div></div>`).join('')}
+    <div class="r-cta"><button class="btn primary" id="r-eat">${icon('plus')}J'ai mangé ça · ${fmt(r.kcal * k)} kcal</button></div>`;
+}
+$('#r-body').addEventListener('click', (e) => {
+  if (!openR) return;
+  const ing = e.target.closest('[data-ing]');
+  if (ing) { const i = +ing.dataset.ing; checked.has(i) ? checked.delete(i) : checked.add(i); renderRecipe(); return; }
+  if (e.target.closest('#p-minus')) { portion = Math.max(0.5, portion - 0.5); renderRecipe(); return; }
+  if (e.target.closest('#p-plus')) { portion = Math.min(3, portion + 0.5); renderRecipe(); return; }
+  if (e.target.closest('#r-eat')) { const id = openR.id; const k = portion; closeRecipe(); logRecipe(id, k); }
+});
+$('#r-close').addEventListener('click', closeRecipe);
+$('#r-save').addEventListener('click', () => { if (openR) { toggleSave(openR.id); renderRecipe(); } });
+
+function logRecipe(id, mult = 1) {
+  const r = R(id); if (!r) return;
+  const time = nowTime();
+  const type = { petitdej: 'petitdej', dejeuner: 'dejeuner', diner: 'diner', snack: 'collation' }[r.cat] || guessType(time);
+  const meal = {
+    id: 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: todayISO(), time, type,
+    items: [{ nom: r.titre + (mult !== 1 ? ` (×${String(mult).replace('.', ',')})` : ''), g: 0, kcal: r0(r.kcal * mult), p: r1(r.p * mult), c: r1(r.c * mult), f: r1(r.f * mult) }],
+    note: '', confiance: '', source: 'recette', recipe: r.id, photo: false,
+  };
+  meals.push(meal); if (!saveMeals()) return;
+  const left = settings.kcal - dayTotals(todayISO()).kcal;
+  toast(`Ajouté à ton journal ✓ ${left >= 0 ? `Il te reste ${fmt(left)} kcal` : `${fmt(-left)} kcal en trop`}`);
+  refreshCurrent();
+}
+async function shareRecipe(id) {
+  const r = R(id); if (!r) return;
+  const text = `${r.titre} — ${r.kcal} kcal, ${r.p} g de protéines\n\nIngrédients :\n- ${r.ingredients.join('\n- ')}\n\nPréparation :\n${r.etapes.map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
+  try { if (navigator.share) { await navigator.share({ title: r.titre, text }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  toast((await copyText(text)) ? 'Recette copiée ✓' : 'Partage impossible ici');
+}
+function toggleLike(id, el, forceOn) {
+  if (forceOn && likedR.has(id)) return;
+  likedR.has(id) ? likedR.delete(id) : likedR.add(id); store.set('liked', [...likedR]);
+  $$(`[data-like="${id}"]`).forEach((b) => { b.classList.toggle('liked', likedR.has(id)); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); });
+  const r = R(id); $$(`[data-likes="${id}"]`).forEach((x) => { x.textContent = likesText(r); });
+}
+function toggleSave(id) {
+  savedR.has(id) ? savedR.delete(id) : savedR.add(id); store.set('saved', [...savedR]);
+  $$(`[data-save="${id}"]`).forEach((b) => { b.classList.toggle('saved', savedR.has(id)); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); });
+  toast(savedR.has(id) ? 'Enregistré dans ton profil 🔖' : 'Retiré des enregistrés');
+}
+
+/* =========================================================
+   Journal
+   ========================================================= */
 let currentDay = todayISO();
 function bigRing(value, target) {
-const S = 156, W = 14, R = (S - W) / 2, C = 2 * Math.PI * R;
-const pct = target > 0 ? Math.min(value / target, 1) : 0; const over = value > target;
-const left = target - value;
-return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" aria-hidden="true">
-<defs><linearGradient id="g-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4ff8a"/><stop offset="1" stop-color="#9fe01b"/></linearGradient></defs>
-<circle cx="${S / 2}" cy="${S / 2}" r="${R}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="${W}"/>
-<circle cx="${S / 2}" cy="${S / 2}" r="${R}" fill="none" stroke="${over ? 'var(--danger)' : 'url(#g-ring)'}" stroke-width="${W}" stroke-linecap="round"
-stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"/>
-</svg>
-<div class="center"><div>
-<div class="big num ${over ? 'over' : ''}">${fmt(Math.abs(left))}</div>
-<div class="sub">${over ? 'kcal en trop' : 'kcal restantes'}</div>
-</div></div>`;
+  const S = 132, W = 12, Rr = (S - W) / 2, C = 2 * Math.PI * Rr;
+  const pct = target > 0 ? Math.min(value / target, 1) : 0; const over = value > target; const left = target - value;
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" aria-hidden="true">
+      <defs><linearGradient id="g-ring" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#fa7e1e"/><stop offset=".65" stop-color="#d62976"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs>
+      <circle cx="${S / 2}" cy="${S / 2}" r="${Rr}" fill="none" stroke="var(--line)" stroke-width="${W}"/>
+      <circle cx="${S / 2}" cy="${S / 2}" r="${Rr}" fill="none" stroke="${over ? 'var(--red)' : 'url(#g-ring)'}" stroke-width="${W}" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" style="transition:stroke-dashoffset .6s"/>
+    </svg>
+    <div class="center"><div><div class="big num ${over ? 'over' : ''}">${fmt(Math.abs(left))}</div><div class="sub">${over ? 'kcal en trop' : 'kcal restantes'}</div></div></div>`;
 }
 function macroCard(label, color, value, target) {
-const pct = target > 0 ? Math.min(value / target * 100, 100) : 0; const left = r0(target - value);
-return `<div class="macro">
-<div class="name"><i style="background:${color}"></i>${label}</div>
-<div class="val num">${r0(value)}<small> / ${r0(target)}</small></div>
-<div class="bar"><i style="width:${pct}%;background:${color}"></i></div>
-<div class="left ${left < 0 ? 'over' : ''}">${left >= 0 ? `reste ${left} g` : `+${-left} g en trop`}</div>
-</div>`;
+  const pct = target > 0 ? Math.min(value / target * 100, 100) : 0; const left = r0(target - value);
+  return `<div class="macro"><div class="name"><i style="background:${color}"></i>${label}</div>
+      <div class="val num">${r0(value)}<small> / ${r0(target)} g</small></div>
+      <div class="bar"><i style="width:${pct}%;background:${color}"></i></div>
+      <div class="left ${left < 0 ? 'over' : ''}">${left >= 0 ? `reste ${left} g` : `+${-left} g en trop`}</div></div>`;
 }
 function miniRing(pct, on) {
-const R = 14.5, C = 2 * Math.PI * R; if (!pct) return '';
-const col = on ? 'rgba(13,18,3,.6)' : (pct > 1 ? 'var(--danger)' : 'var(--lime)');
-return `<svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="${R}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - Math.min(pct, 1))}"/></svg>`;
+  const Rr = 16.5, C = 2 * Math.PI * Rr; if (!pct || on) return '';
+  return `<svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="${Rr}" fill="none" stroke="${pct > 1 ? 'var(--red)' : '#d62976'}" stroke-width="2" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - Math.min(pct, 1))}"/></svg>`;
 }
 function renderWeek() {
-const d = toDate(currentDay); const dow = (d.getDay() + 6) % 7; const monday = shiftDate(currentDay, -dow);
-const t = todayISO(); let html = `<button class="arrow" id="prev-week" aria-label="Semaine précédente">${icon('left')}</button>`;
-for (let i = 0; i < 7; i++) {
-const iso = shiftDate(monday, i); const dt = toDate(iso);
-const k = dayTotals(iso).kcal; const pct = settings.kcal ? k / settings.kcal : 0;
-const cls = ['wd', iso === currentDay ? 'on' : '', iso === t ? 'today' : '', iso > t ? 'future' : ''].join(' ');
-html += `<button class="${cls}" data-wd="${iso}"><span class="l">${dt.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '').slice(0, 3)}</span><span class="n num">${miniRing(pct, iso === currentDay)}${dt.getDate()}</span></button>`;
+  const d = toDate(currentDay); const dow = (d.getDay() + 6) % 7; const monday = shiftDate(currentDay, -dow); const t = todayISO();
+  let html = `<button class="arrow" id="prev-week" aria-label="Semaine précédente">${icon('left')}</button>`;
+  for (let i = 0; i < 7; i++) {
+    const iso = shiftDate(monday, i); const dt = toDate(iso); const pct = settings.kcal ? dayTotals(iso).kcal / settings.kcal : 0;
+    const cls = ['wd', iso === currentDay ? 'on' : '', iso === t ? 'today' : '', iso > t ? 'future' : ''].join(' ');
+    html += `<button class="${cls}" data-wd="${iso}">${dt.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '').slice(0, 3)}<span class="n num">${miniRing(pct, iso === currentDay)}${dt.getDate()}</span></button>`;
+  }
+  html += `<button class="arrow" id="next-week" aria-label="Semaine suivante" ${shiftDate(monday, 7) > t ? 'disabled' : ''}>${icon('right')}</button>`;
+  $('#week').innerHTML = html;
 }
-html += `<button class="arrow" id="next-week" aria-label="Semaine suivante" ${shiftDate(monday, 7) > t ? 'disabled' : ''}>${icon('right')}</button>`;
-$('#week').innerHTML = html;
+function mealThumb(m) {
+  const r = m.recipe && R(m.recipe);
+  if (r) return `<span class="thumb" style="background:linear-gradient(135deg, ${r.bg[0]}, ${r.bg[1]})">${r.emoji[0]}</span>`;
+  return `<span class="thumb" data-thumb="${m.photo ? m.id : ''}">🍽️</span>`;
 }
-function renderToday() {
-const t = dayTotals(currentDay);
-$('#today-title').textContent = dayName(currentDay);
-$('#day-eyebrow').textContent = toDate(currentDay).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
-renderWeek();
-$('#ring').innerHTML = bigRing(t.kcal, settings.kcal);
-$('#stats').innerHTML = `
-<div class="stat"><div class="k">Mangé</div><div class="v num">${fmt(t.kcal)} <small>kcal</small></div></div>
-<div class="stat"><div class="k">Objectif</div><div class="v num">${fmt(settings.kcal)} <small>kcal</small></div></div>`;
-$('#macro-bars').innerHTML = macroCard('Protéines', 'var(--p)', t.p, settings.p) + macroCard('Glucides', 'var(--c)', t.c, settings.c) + macroCard('Lipides', 'var(--f)', t.f, settings.f);
-$('#key-hint').classList.toggle('hidden', !!settings.key);
-const list = mealsOf(currentDay); const box = $('#meal-list');
-$('#meal-count').textContent = list.length ? `${list.length} repas` : '';
-if (!list.length) {
-box.innerHTML = `<div class="empty"><div class="ico">${icon('cam')}</div><b>Aucun repas ${currentDay === todayISO() ? "pour l'instant" : 'ce jour-là'}</b>Appuie sur le bouton photo pour commencer.</div>`;
-return;
+function loadThumbs(root) {
+  root.querySelectorAll('[data-thumb]').forEach(async (el) => {
+    const id = el.dataset.thumb; if (!id) return;
+    const src = await photoDB.get(id); if (src) el.innerHTML = `<img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover">`;
+  });
 }
-box.innerHTML = list.map((m) => {
-const s = sumItems(m.items); const ty = TYPES.find((x) => x.id === m.type) || TYPES[3];
-const names = m.items.map((i) => i.nom).filter(Boolean).join(', ');
-return `<button class="meal" data-meal="${m.id}">
-<div class="thumb" data-thumb="${m.photo ? m.id : ''}">${icon('fork')}</div>
-<div class="grow">
-<div class="type">${ty.label} · ${esc(m.time)}</div>
-<div class="names">${esc(names) || '—'}</div>
-<div class="mac num"><span><b style="color:var(--p)">P</b> ${r0(s.p)}</span><span><b style="color:var(--c)">G</b> ${r0(s.c)}</span><span><b style="color:var(--f)">L</b> ${r0(s.f)}</span></div>
-</div>
-<div class="kcal num"><b>${fmt(s.kcal)}</b><span>kcal</span></div>
-</button>`;
-}).join('');
-$$('[data-thumb]').forEach(async (el) => {
-const id = el.dataset.thumb; if (!id) return;
-const src = await photoDB.get(id);
-if (src) el.outerHTML = `<img class="thumb" src="${src}" alt="">`;
-});
+function renderJournal() {
+  const t = dayTotals(currentDay);
+  $('#j-title').textContent = dayName(currentDay);
+  renderWeek();
+  $('#ring').innerHTML = bigRing(t.kcal, settings.kcal);
+  $('#stats').innerHTML = `<div class="stat"><div class="k">Mangé</div><div class="v num">${fmt(t.kcal)} <small>kcal</small></div></div><div class="stat"><div class="k">Objectif</div><div class="v num">${fmt(settings.kcal)} <small>kcal</small></div></div>`;
+  $('#macro-cards').innerHTML = macroCard('Protéines', 'var(--p)', t.p, settings.p) + macroCard('Glucides', 'var(--c)', t.c, settings.c) + macroCard('Lipides', 'var(--f)', t.f, settings.f);
+  $('#key-hint').classList.toggle('hidden', !!settings.key);
+  const list = mealsOf(currentDay); const box = $('#meal-list');
+  $('#meal-count').textContent = list.length ? `${list.length} repas` : '';
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><div class="ico">${icon('cam')}</div><b>Aucun repas</b>Touche <b style="display:inline;font-size:inherit">＋</b> en bas pour une photo, ou choisis une recette.</div>`;
+  } else {
+    box.innerHTML = list.map((m) => {
+      const s = sumItems(m.items); const ty = TYPES.find((x) => x.id === m.type) || TYPES[3];
+      return `<button class="meal" data-meal="${m.id}">${mealThumb(m)}
+          <div class="grow"><div class="t">${ty.label} · ${esc(m.time)}</div><div class="names">${esc(m.items.map((i) => i.nom).filter(Boolean).join(', ')) || '—'}</div>
+          <div class="mac num">P ${r0(s.p)} · G ${r0(s.c)} · L ${r0(s.f)}</div></div>
+          <div class="kc num">${fmt(s.kcal)}<span>kcal</span></div></button>`;
+    }).join('');
+    loadThumbs(box);
+  }
+  // Idées qui rentrent dans ce qu'il reste
+  const left = settings.kcal - t.kcal;
+  const ideas = RECIPES.filter((r) => r.kcal <= Math.max(left, 0)).sort((a, b) => b.p / b.kcal - a.p / a.kcal).slice(0, 6);
+  $('#j-ideas').innerHTML = ideas.length ? ideas.map((r) => tileHTML(r, 0)).join('') : `<div class="empty" style="grid-column:1/-1">Ton budget du jour est atteint. Bravo, tiens bon jusqu'à demain 💪</div>`;
 }
+
 /* =========================================================
-Écran Historique
-========================================================= */
-function renderHistory() {
-const days = [...new Set(meals.map((m) => m.date))].sort().reverse();
-const last7 = days.filter((d) => d > shiftDate(todayISO(), -7));
-const avg = last7.length ? last7.map(dayTotals).reduce((a, b) => ({ kcal: a.kcal + b.kcal, p: a.p + b.p }), { kcal: 0, p: 0 }) : null;
-$('#history-avg').innerHTML = `
-<div class="macro"><div class="name"><i style="background:var(--lime)"></i>Moy. 7 jours</div><div class="val num">${avg ? fmt(avg.kcal / last7.length) : '—'}<small> kcal</small></div><div class="left">objectif ${fmt(settings.kcal)}</div></div>
-<div class="macro"><div class="name"><i style="background:var(--p)"></i>Protéines moy.</div><div class="val num">${avg ? r0(avg.p / last7.length) : '—'}<small> g</small></div><div class="left">objectif ${settings.p} g</div></div>`;
-const box = $('#history-list');
-if (!days.length) { box.innerHTML = `<div class="empty"><div class="ico">${icon('cal')}</div><b>Rien pour l'instant</b>Ton historique apparaîtra ici dès ton premier repas.</div>`; return; }
-box.innerHTML = days.map((d) => {
-const t = dayTotals(d); const n = mealsOf(d).length; const dt = toDate(d);
-const pct = settings.kcal ? Math.min(t.kcal / settings.kcal * 100, 100) : 0; const over = t.kcal > settings.kcal;
-return `<button class="day" data-day="${d}">
-<div class="date"><b class="num">${dt.getDate()}</b><span>${dt.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}</span></div>
-<div class="grow">
-<div class="t">${esc(dayName(d))}</div>
-<div class="bar"><i style="width:${pct}%;background:${over ? 'var(--danger)' : 'var(--lime)'}"></i></div>
-<div class="meta num">${n} repas · P ${r0(t.p)} · G ${r0(t.c)} · L ${r0(t.f)}</div>
-</div>
-<div class="k num"><b class="${over ? 'over' : ''}">${fmt(t.kcal)}</b><span>/ ${fmt(settings.kcal)}</span></div>
-</button>`;
-}).join('');
+   Profil
+   ========================================================= */
+let ptab = 'grid';
+function renderProfile() {
+  const days = [...new Set(meals.map((m) => m.date))].sort().reverse();
+  $('#p-counts').innerHTML = `<div><b class="num">${meals.length}</b><span>repas</span></div><div><b class="num">${days.length}</b><span>jours suivis</span></div><div><b class="num">${savedR.size}</b><span>enregistrés</span></div>`;
+  $('#p-bio').innerHTML = `<b>En sèche 🔥</b><br>🎯 ${fmt(settings.kcal)} kcal · ${settings.p} g prot · ${settings.c} g gluc · ${settings.f} g lip<br><span class="muted">Mes données restent sur mon téléphone.</span>`;
+  const last7 = days.filter((d) => d > shiftDate(todayISO(), -7));
+  const avg = last7.length ? last7.map(dayTotals).reduce((a, b) => ({ kcal: a.kcal + b.kcal, p: a.p + b.p }), { kcal: 0, p: 0 }) : null;
+  let streak = 0; for (let d = todayISO(); mealsOf(d).length; d = shiftDate(d, -1)) streak++;
+  const inTarget = last7.filter((d) => dayTotals(d).kcal <= settings.kcal).length;
+  $('#p-hl').innerHTML = [
+    [`${streak}`, 'jours', 'Série'],
+    [avg ? fmt(avg.kcal / last7.length) : '—', 'kcal/j', 'Moy. 7 j'],
+    [avg ? r0(avg.p / last7.length) : '—', 'g prot/j', 'Protéines'],
+    [`${inTarget}/${last7.length || 0}`, 'jours', 'Objectif tenu'],
+  ].map(([v, u, l]) => `<div class="h"><i><span class="num">${v}<small>${u}</small></span></i>${l}</div>`).join('');
+  $$('.ptab').forEach((b) => b.classList.toggle('on', b.dataset.ptab === ptab));
+  const box = $('#p-content');
+  if (ptab === 'grid') {
+    const list = meals.slice().sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+    if (!list.length) { box.innerHTML = `<div class="empty"><div class="ico">${icon('cam')}</div><b>Partage ton premier repas</b>Tes repas apparaîtront ici, comme tes publications.</div>`; return; }
+    box.innerHTML = `<div class="grid3">${list.map((m) => {
+      const r = m.recipe && R(m.recipe); const s = sumItems(m.items);
+      const inner = r ? `<span class="e2">${r.emoji[1] || ''}</span><span class="e1">${r.emoji[0]}</span>` : `<span class="e1" data-thumb="${m.photo ? m.id : ''}" style="font-size:40px">🍽️</span>`;
+      return `<button class="tile" data-meal="${m.id}" style="background:${r ? `linear-gradient(135deg, ${r.bg[0]}, ${r.bg[1]})` : 'var(--chip)'}">${inner}<span class="ov num"><span>${fmt(s.kcal)} kcal</span><span>${toDate(m.date).getDate()}/${toDate(m.date).getMonth() + 1}</span></span></button>`;
+    }).join('')}</div>`;
+    box.querySelectorAll('[data-thumb]').forEach(async (el) => {
+      const id = el.dataset.thumb; if (!id) return;
+      const src = await photoDB.get(id); if (src) el.outerHTML = `<img src="${src}" alt="">`;
+    });
+  } else if (ptab === 'days') {
+    if (!days.length) { box.innerHTML = `<div class="empty"><div class="ico">${icon('cal')}</div><b>Aucun jour</b>Ton historique apparaîtra ici.</div>`; return; }
+    box.innerHTML = days.map((d) => {
+      const t = dayTotals(d); const dt = toDate(d); const over = t.kcal > settings.kcal; const pct = settings.kcal ? Math.min(t.kcal / settings.kcal * 100, 100) : 0;
+      return `<button class="day" data-day="${d}"><div class="date"><b class="num">${dt.getDate()}</b><span>${dt.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}</span></div>
+          <div class="grow"><b>${esc(dayName(d))}</b><div class="bar"><i style="width:${pct}%;background:${over ? 'var(--red)' : 'var(--ok)'}"></i></div><div class="meta num">${mealsOf(d).length} repas · P ${r0(t.p)} · G ${r0(t.c)} · L ${r0(t.f)}</div></div>
+          <div class="k num ${over ? 'over' : ''}">${fmt(t.kcal)}<span>/ ${fmt(settings.kcal)}</span></div></button>`;
+    }).join('');
+  } else {
+    const list = RECIPES.filter((r) => savedR.has(r.id));
+    box.innerHTML = list.length ? `<div class="grid3">${list.map((r) => tileHTML(r, 0)).join('')}</div>` : `<div class="empty"><div class="ico">${icon('bookmark')}</div><b>Enregistre des recettes</b>Touche le signet sous une recette du fil.</div>`;
+  }
 }
+
 /* =========================================================
-Écran Réglages
-========================================================= */
+   Réglages
+   ========================================================= */
 function renderSettings() {
-$('#t-kcal').value = settings.kcal; $('#t-p').value = settings.p; $('#t-c').value = settings.c; $('#t-f').value = settings.f;
-$('#api-key').value = settings.key; $('#model').value = settings.model;
-$('#key-status').innerHTML = settings.key ? banner('check', 'Clé enregistrée sur ce téléphone.') : '';
+  $('#t-kcal').value = settings.kcal; $('#t-p').value = settings.p; $('#t-c').value = settings.c; $('#t-f').value = settings.f;
+  $('#api-key').value = settings.key; $('#model').value = settings.model;
+  $('#key-status').innerHTML = settings.key ? banner('check', 'Clé enregistrée sur ce téléphone.') : '';
 }
-const banner = (ic, html, cls = '') => `<div class="banner ${cls}">${icon(ic)}<div>${html}</div></div>`;
-function show(tab) {
-['today', 'history', 'settings'].forEach((v) => $('#view-' + v).classList.toggle('hidden', v !== tab));
-$$('.tab[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
-if (tab === 'today') renderToday();
-if (tab === 'history') renderHistory();
-if (tab === 'settings') renderSettings();
-window.scrollTo(0, 0);
+
+/* ---------- Navigation ---------- */
+const VIEWS = ['feed', 'explore', 'journal', 'profile', 'settings'];
+let currentView = 'feed';
+function show(view) {
+  currentView = view;
+  VIEWS.forEach((v) => $('#view-' + v).classList.toggle('hidden', v !== view));
+  $$('.tab[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === view || (view === 'settings' && b.dataset.tab === 'profile')));
+  refreshCurrent();
+  window.scrollTo(0, 0);
 }
+function refreshCurrent() {
+  if (currentView === 'feed') renderFeed();
+  if (currentView === 'explore') renderExplore();
+  if (currentView === 'journal') renderJournal();
+  if (currentView === 'profile') renderProfile();
+  if (currentView === 'settings') renderSettings();
+}
+
 /* =========================================================
-Feuille de repas (analyse + correction)
-========================================================= */
+   Feuille de repas (analyse + correction)
+   ========================================================= */
 let draft = null;
 function openSheet(d) {
-draft = d;
-$('#sheet-title').textContent = d.isNew ? 'Nouveau repas' : 'Modifier';
-$('#m-date').value = d.date; $('#m-time').value = d.time; $('#m-note').value = d.note || '';
-const hasPhoto = !!d.thumb;
-$('#photo-hero').classList.toggle('hidden', !hasPhoto);
-$('#sheet-head').classList.toggle('over-photo', hasPhoto);
-if (hasPhoto) $('#sheet-photo').src = d.thumb;
-$('#analyze-box').classList.toggle('hidden', !d.image);
-$('#analyze').innerHTML = `${icon('spark')}Analyser la photo`;
-$('#analyze-msg').innerHTML = '';
-$('#claude-box').classList.add('hidden');
-$('#claude-text').value = '';
-$('#sheet-delete').style.visibility = d.isNew ? 'hidden' : 'visible';
-renderTypeSeg(); renderConfidence(); renderItems();
-$('#sheet').classList.remove('hidden'); $('#sheet').scrollTop = 0; $('#sheet-head').classList.remove('scrolled');
-document.body.style.overflow = 'hidden';
+  draft = d;
+  $('#sheet-title').textContent = d.isNew ? 'Nouveau repas' : 'Modifier le repas';
+  $('#m-date').value = d.date; $('#m-time').value = d.time; $('#m-note').value = d.note || '';
+  $('#sheet-photo').classList.toggle('hidden', !d.thumb); if (d.thumb) $('#sheet-photo').src = d.thumb;
+  $('#analyze-box').classList.toggle('hidden', !d.image);
+  $('#analyze').innerHTML = `${icon('spark')}Analyser la photo`;
+  $('#analyze-msg').innerHTML = '';
+  $('#claude-box').classList.add('hidden'); $('#claude-text').value = '';
+  $('#sheet-delete').style.visibility = d.isNew ? 'hidden' : 'visible';
+  renderTypeSeg(); renderConfidence(); renderItems();
+  $('#sheet').classList.remove('hidden'); $('#sheet').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
 }
 function closeSheet() { $('#sheet').classList.add('hidden'); document.body.style.overflow = ''; draft = null; }
-function renderTypeSeg() {
-$('#type-seg').innerHTML = TYPES.map((t) => `<button data-type="${t.id}" class="${draft.type === t.id ? 'on' : ''}">${t.label}</button>`).join('');
-}
+function renderTypeSeg() { $('#type-seg').innerHTML = TYPES.map((t) => `<button data-type="${t.id}" class="${draft.type === t.id ? 'on' : ''}">${t.label}</button>`).join(''); }
 function renderConfidence() {
-const c = draft.confiance; const box = $('#confidence');
-if (!c && !draft.remarque) { box.innerHTML = ''; return; }
-const low = /faible/i.test(c || '');
-box.innerHTML = `<div class="conf ${low ? 'low' : ''}">${icon(low ? 'info' : 'spark')}<div>${c ? `<b>Confiance : ${esc(c)}.</b> ` : ''}${esc(draft.remarque || '')} Vérifie les quantités.</div></div>`;
+  const c = draft.confiance; const box = $('#confidence');
+  if (!c && !draft.remarque) { box.innerHTML = ''; return; }
+  const low = /faible/i.test(c || '');
+  box.innerHTML = `<div class="conf ${low ? 'low' : ''}">${icon(low ? 'info' : 'spark')}<div>${c ? `<b>Confiance : ${esc(c)}.</b> ` : ''}${esc(draft.remarque || '')} Vérifie les quantités.</div></div>`;
 }
 function itemHTML(it, i) {
-const v = (k) => it[k] === '' ? '' : (k === 'kcal' || k === 'g' ? r0(num(it[k])) : r1(num(it[k])));
-const f = (k, label, color) => `<div class="cell"><label>${color ? `<i style="background:${color}"></i>` : ''}${label}</label><input inputmode="decimal" data-i="${i}" data-k="${k}" value="${v(k)}"></div>`;
-return `<div class="item">
-<div class="head"><input class="name" data-i="${i}" data-k="nom" value="${esc(it.nom)}" placeholder="Nom de l'aliment"><button class="del" data-del="${i}" aria-label="Supprimer">${icon('trash')}</button></div>
-<div class="grid5">${f('g', 'Grammes')}${f('kcal', 'Kcal')}${f('p', 'Prot', 'var(--p)')}${f('c', 'Gluc', 'var(--c)')}${f('f', 'Lip', 'var(--f)')}</div>
-</div>`;
+  const v = (k) => it[k] === '' ? '' : (k === 'kcal' || k === 'g' ? r0(num(it[k])) : r1(num(it[k])));
+  const f = (k, label, color) => `<div class="cell"><label>${color ? `<i style="background:${color}"></i>` : ''}${label}</label><input inputmode="decimal" data-i="${i}" data-k="${k}" value="${v(k)}"></div>`;
+  return `<div class="item"><div class="head"><input class="name" data-i="${i}" data-k="nom" value="${esc(it.nom)}" placeholder="Nom de l'aliment"><button class="del" data-del="${i}" aria-label="Supprimer">${icon('trash')}</button></div>
+      <div class="grid5">${f('g', 'Grammes')}${f('kcal', 'Kcal')}${f('p', 'Prot', 'var(--p)')}${f('c', 'Gluc', 'var(--c)')}${f('f', 'Lip', 'var(--f)')}</div></div>`;
 }
 function renderItems() {
-$('#items').innerHTML = draft.items.map(itemHTML).join('');
-$('#item-count').textContent = draft.items.length ? `${draft.items.length} élément${draft.items.length > 1 ? 's' : ''}` : (draft.image ? 'Lance l\'analyse ou ajoute à la main' : '');
-renderSheetTotals();
+  $('#items').innerHTML = draft.items.map(itemHTML).join('');
+  $('#item-count').textContent = draft.items.length ? `${draft.items.length} élément${draft.items.length > 1 ? 's' : ''}` : (draft.image ? "Lance l'analyse ou ajoute à la main" : '');
+  renderSheetTotals();
 }
 function renderSheetTotals() {
-const s = sumItems(draft.items);
-$('#sheet-totals').innerHTML = `<div><b>${fmt(s.kcal)}</b><span>kcal</span></div><div><b style="color:var(--p)">${r0(s.p)}</b><span>Prot</span></div><div><b style="color:var(--c)">${r0(s.c)}</b><span>Gluc</span></div><div><b style="color:var(--f)">${r0(s.f)}</b><span>Lip</span></div>`;
+  const s = sumItems(draft.items);
+  $('#sheet-totals').innerHTML = `<div><b>${fmt(s.kcal)}</b><span>kcal</span></div><div><b style="color:var(--p)">${r0(s.p)}</b><span>Prot</span></div><div><b style="color:var(--c)">${r0(s.c)}</b><span>Gluc</span></div><div><b style="color:var(--f)">${r0(s.f)}</b><span>Lip</span></div>`;
 }
 function refreshItemInputs(i) {
-const it = draft.items[i];
-$$(`#items input[data-i="${i}"]`).forEach((el) => {
-const k = el.dataset.k; if (k === 'nom' || k === 'g' || document.activeElement === el) return;
-el.value = k === 'kcal' ? r0(num(it[k])) : r1(num(it[k]));
-});
+  const it = draft.items[i];
+  $$(`#items input[data-i="${i}"]`).forEach((el) => {
+    const k = el.dataset.k; if (k === 'nom' || k === 'g' || document.activeElement === el) return;
+    el.value = k === 'kcal' ? r0(num(it[k])) : r1(num(it[k]));
+  });
 }
+
 /* ---------- Lecture de la réponse de l'IA ---------- */
 function extractJSON(text) {
-if (!text) throw new Error('vide');
-let t = String(text).trim();
-const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i); if (fence) t = fence[1];
-const a = t.indexOf('{'), b = t.lastIndexOf('}');
-const a2 = t.indexOf('['), b2 = t.lastIndexOf(']');
-if (a !== -1 && b > a && (a2 === -1 || a < a2)) t = t.slice(a, b + 1);
-else if (a2 !== -1 && b2 > a2) t = t.slice(a2, b2 + 1);
-return JSON.parse(t);
+  if (!text) throw new Error('vide');
+  let t = String(text).trim();
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i); if (fence) t = fence[1];
+  const a = t.indexOf('{'), b = t.lastIndexOf('}'); const a2 = t.indexOf('['), b2 = t.lastIndexOf(']');
+  if (a !== -1 && b > a && (a2 === -1 || a < a2)) t = t.slice(a, b + 1);
+  else if (a2 !== -1 && b2 > a2) t = t.slice(a2, b2 + 1);
+  return JSON.parse(t);
 }
 function pick(o, keys) { for (const k of keys) { if (o[k] !== undefined && o[k] !== null && o[k] !== '') return o[k]; } return 0; }
 function normalizeResult(data) {
-const arr = Array.isArray(data) ? data : (data.aliments || data.items || data.foods || data.aliment || []);
-const items = (Array.isArray(arr) ? arr : []).map((x) => ({
-nom: String(pick(x, ['nom', 'name', 'aliment', 'food']) || 'Aliment'),
-g: r0(num(pick(x, ['grammes', 'g', 'grams', 'quantite', 'quantité', 'poids']))),
-kcal: r0(num(pick(x, ['kcal', 'calories', 'cal', 'energie']))),
-p: r1(num(pick(x, ['proteines', 'protéines', 'protein', 'proteins', 'p']))),
-c: r1(num(pick(x, ['glucides', 'carbs', 'carbohydrates', 'glucide', 'c']))),
-f: r1(num(pick(x, ['lipides', 'fat', 'fats', 'lipide', 'f']))),
-}));
-if (!items.length) throw new Error('aucun aliment');
-return { items, confiance: Array.isArray(data) ? '' : String(data.confiance || data.confidence || ''), remarque: Array.isArray(data) ? '' : String(data.remarque || data.note || data.remarques || '') };
+  const arr = Array.isArray(data) ? data : (data.aliments || data.items || data.foods || data.aliment || []);
+  const items = (Array.isArray(arr) ? arr : []).map((x) => ({
+    nom: String(pick(x, ['nom', 'name', 'aliment', 'food']) || 'Aliment'),
+    g: r0(num(pick(x, ['grammes', 'g', 'grams', 'quantite', 'quantité', 'poids']))),
+    kcal: r0(num(pick(x, ['kcal', 'calories', 'cal', 'energie']))),
+    p: r1(num(pick(x, ['proteines', 'protéines', 'protein', 'proteins', 'p']))),
+    c: r1(num(pick(x, ['glucides', 'carbs', 'carbohydrates', 'glucide', 'c']))),
+    f: r1(num(pick(x, ['lipides', 'fat', 'fats', 'lipide', 'f']))),
+  }));
+  if (!items.length) throw new Error('aucun aliment');
+  return { items, confiance: Array.isArray(data) ? '' : String(data.confiance || data.confidence || ''), remarque: Array.isArray(data) ? '' : String(data.remarque || data.note || data.remarques || '') };
 }
 function applyResult(res, source) {
-draft.items = res.items; draft.confiance = res.confiance; draft.remarque = res.remarque; draft.source = source;
-renderConfidence(); renderItems();
-$('#confidence').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  draft.items = res.items; draft.confiance = res.confiance; draft.remarque = res.remarque; draft.source = source;
+  renderConfidence(); renderItems();
+  $('#confidence').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-/* ---------- Consigne commune ---------- */
 function buildPrompt(note, forClaude) {
-return `Tu es un nutritionniste. Analyse la photo de ce repas.
+  return `Tu es un nutritionniste. Analyse la photo de ce repas.
 Identifie chaque aliment visible, estime sa quantité en grammes (tel que servi, cuit si c'est cuit) et ses valeurs nutritionnelles pour CETTE quantité.
 Pense à l'huile de cuisson, au beurre et aux sauces probables. Si un aliment est caché ou incertain, fais l'estimation la plus réaliste.
 ${note ? `Précision donnée par la personne : « ${note} ». Elle est prioritaire sur ce que tu vois.\n` : ''}Réponds ${forClaude ? 'UNIQUEMENT avec un bloc de code JSON' : 'UNIQUEMENT en JSON'}, sans autre texte, avec exactement ce format :
 {"aliments":[{"nom":"riz blanc cuit","grammes":200,"kcal":260,"proteines":5.4,"glucides":56,"lipides":0.6}],"confiance":"élevée | moyenne | faible","remarque":"une phrase courte sur ce qui est incertain"}
 Noms des aliments en français. Nombres sans unité.`;
 }
+
 /* ---------- Gemini ---------- */
 async function callGemini(model, b64, note, key) {
-const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-const body = {
-contents: [{ role: 'user', parts: [{ text: buildPrompt(note, false) }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }],
-generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
-};
-const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 60000);
-try {
-const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body), signal: ctrl.signal });
-const data = await res.json().catch(() => ({}));
-if (!res.ok) { const e = new Error((data.error && data.error.message) || ('HTTP ' + res.status)); e.status = res.status; throw e; }
-const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
-const text = parts.filter((p) => !p.thought).map((p) => p.text || '').join('');
-if (!text) { const e = new Error("L'IA n'a pas répondu (photo refusée ou vide)."); e.status = 0; throw e; }
-return text;
-} finally { clearTimeout(to); }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const body = { contents: [{ role: 'user', parts: [{ text: buildPrompt(note, false) }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }], generationConfig: { temperature: 0.2, responseMimeType: 'application/json' } };
+  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 60000);
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body), signal: ctrl.signal });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error((data.error && data.error.message) || ('HTTP ' + res.status)); e.status = res.status; throw e; }
+    const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+    const text = parts.filter((p) => !p.thought).map((p) => p.text || '').join('');
+    if (!text) { const e = new Error("L'IA n'a pas répondu (photo refusée ou vide)."); e.status = 0; throw e; }
+    return text;
+  } finally { clearTimeout(to); }
 }
 async function geminiAnalyze(b64, note) {
-const key = settings.key.trim();
-const preferred = store.get('model.ok', '');
-const list = settings.model ? [settings.model.trim()] : [...new Set([preferred, ...MODEL_CANDIDATES].filter(Boolean))];
-let lastErr;
-for (const m of list) {
-try {
-const text = await callGemini(m, b64, note, key);
-if (!settings.model) store.set('model.ok', m);
-return text;
-} catch (e) {
-lastErr = e;
-if (e.status === 404 || e.status === 429 || /not found|not supported/i.test(e.message)) continue;
-throw e;
-}
-}
-throw lastErr || new Error('Aucun modèle disponible');
+  const key = settings.key.trim(); const preferred = store.get('model.ok', '');
+  const list = settings.model ? [settings.model.trim()] : [...new Set([preferred, ...MODEL_CANDIDATES].filter(Boolean))];
+  let lastErr;
+  for (const m of list) {
+    try { const text = await callGemini(m, b64, note, key); if (!settings.model) store.set('model.ok', m); return text; }
+    catch (e) { lastErr = e; if (e.status === 404 || e.status === 429 || /not found|not supported/i.test(e.message)) continue; throw e; }
+  }
+  throw lastErr || new Error('Aucun modèle disponible');
 }
 function geminiErrorText(e) {
-if (e.name === 'AbortError') return "L'analyse a pris trop de temps. Vérifie ta connexion et réessaie.";
-if (e.status === 400 && /api key|API_KEY/i.test(e.message)) return "Ta clé Gemini n'est pas valide. Vérifie-la dans Réglages.";
-if (e.status === 403) return 'Google refuse ta clé. Recrée une clé sur aistudio.google.com/apikey.';
-if (e.status === 429) return 'Limite gratuite de Gemini atteinte pour le moment. Réessaie plus tard, ou utilise « Coller depuis Claude ».';
-if (e.status === 503 || e.status === 500) return 'Gemini est surchargé. Réessaie dans une minute.';
-if (!navigator.onLine) return 'Pas de connexion internet.';
-return "L'analyse a échoué : " + e.message;
+  if (e.name === 'AbortError') return "L'analyse a pris trop de temps. Vérifie ta connexion et réessaie.";
+  if (e.status === 400 && /api key|API_KEY/i.test(e.message)) return "Ta clé Gemini n'est pas valide. Vérifie-la dans Réglages.";
+  if (e.status === 403) return 'Google refuse ta clé. Recrée une clé sur aistudio.google.com/apikey.';
+  if (e.status === 429) return 'Limite gratuite de Gemini atteinte pour le moment. Réessaie plus tard, ou utilise « Coller depuis Claude ».';
+  if (e.status === 503 || e.status === 500) return 'Gemini est surchargé. Réessaie dans une minute.';
+  if (!navigator.onLine) return 'Pas de connexion internet.';
+  return "L'analyse a échoué : " + e.message;
 }
+
 /* ---------- Photos ---------- */
 function loadImage(file) {
-return new Promise((res, rej) => {
-const url = URL.createObjectURL(file); const img = new Image();
-img.onload = () => { URL.revokeObjectURL(url); res(img); };
-img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Image illisible')); };
-img.src = url;
-});
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Image illisible')); };
+    img.src = url;
+  });
 }
 function resize(img, max, quality) {
-const w = img.naturalWidth, h = img.naturalHeight; const cv = document.createElement('canvas');
-const k = Math.min(1, max / Math.max(w, h)); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
-cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-return cv.toDataURL('image/jpeg', quality);
+  const w = img.naturalWidth, h = img.naturalHeight; const cv = document.createElement('canvas');
+  const k = Math.min(1, max / Math.max(w, h)); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  return cv.toDataURL('image/jpeg', quality);
 }
 async function onPhoto(file) {
-if (!file) return;
-try {
-const img = await loadImage(file);
-const thumb = resize(img, 720, 0.72);
-const big = resize(img, 1024, 0.82);
-const time = nowTime();
-openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [], note: '', thumb, image: big.split(',')[1] });
-if (!settings.key) $('#analyze-msg').innerHTML = `<div style="margin-top:12px">${banner('info', 'Pas encore de clé Gemini : ajoute-la dans Réglages, ou utilise « Coller depuis Claude ».')}</div>`;
-} catch (e) { toast('Impossible de lire cette photo.'); }
+  if (!file) return;
+  try {
+    const img = await loadImage(file);
+    const thumb = resize(img, 720, 0.72); const big = resize(img, 1024, 0.82); const time = nowTime();
+    openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [], note: '', thumb, image: big.split(',')[1] });
+    if (!settings.key) $('#analyze-msg').innerHTML = banner('info', 'Pas encore de clé Gemini : ajoute-la dans Réglages, ou utilise « Coller depuis Claude ».');
+  } catch (e) { toast('Impossible de lire cette photo.'); }
 }
+
 /* ---------- Événements de la feuille ---------- */
 $('#type-seg').addEventListener('click', (e) => { const b = e.target.closest('[data-type]'); if (!b) return; draft.type = b.dataset.type; renderTypeSeg(); });
 $('#items').addEventListener('input', (e) => {
-const el = e.target; if (!el.dataset.k) return;
-const i = +el.dataset.i, k = el.dataset.k; const it = draft.items[i];
-if (k === 'nom') { it.nom = el.value; return; }
-if (k === 'g') {
-// Changer la quantité recalcule les chiffres en proportion
-const base = it._base || (it._base = { g: num(it.g), kcal: num(it.kcal), p: num(it.p), c: num(it.c), f: num(it.f) });
-const newG = num(el.value);
-if (base.g > 0 && newG > 0) { const r = newG / base.g; it.kcal = base.kcal * r; it.p = base.p * r; it.c = base.c * r; it.f = base.f * r; refreshItemInputs(i); }
-it.g = el.value === '' ? '' : newG;
-} else {
-it[k] = el.value === '' ? '' : num(el.value);
-it._base = { g: num(it.g), kcal: num(it.kcal), p: num(it.p), c: num(it.c), f: num(it.f) };
-}
-renderSheetTotals();
+  const el = e.target; if (!el.dataset.k) return;
+  const i = +el.dataset.i, k = el.dataset.k; const it = draft.items[i];
+  if (k === 'nom') { it.nom = el.value; return; }
+  if (k === 'g') {
+    // Changer la quantité recalcule les chiffres en proportion
+    const base = it._base || (it._base = { g: num(it.g), kcal: num(it.kcal), p: num(it.p), c: num(it.c), f: num(it.f) });
+    const newG = num(el.value);
+    if (base.g > 0 && newG > 0) { const q = newG / base.g; it.kcal = base.kcal * q; it.p = base.p * q; it.c = base.c * q; it.f = base.f * q; refreshItemInputs(i); }
+    it.g = el.value === '' ? '' : newG;
+  } else {
+    it[k] = el.value === '' ? '' : num(el.value);
+    it._base = { g: num(it.g), kcal: num(it.kcal), p: num(it.p), c: num(it.c), f: num(it.f) };
+  }
+  renderSheetTotals();
 });
 $('#items').addEventListener('click', (e) => { const b = e.target.closest('[data-del]'); if (!b) return; draft.items.splice(+b.dataset.del, 1); renderItems(); });
 $('#add-item').addEventListener('click', () => {
-draft.items.push({ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }); renderItems();
-const names = $$('#items .name'); const last = names[names.length - 1]; if (last) { last.focus(); last.scrollIntoView({ block: 'center' }); }
+  draft.items.push({ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }); renderItems();
+  const names = $$('#items .name'); const last = names[names.length - 1]; if (last) { last.focus(); last.scrollIntoView({ block: 'center' }); }
 });
 $('#analyze').addEventListener('click', async () => {
-if (!draft || !draft.image) return;
-if (!settings.key) { $('#analyze-msg').innerHTML = `<div style="margin-top:12px">${banner('info', "Ajoute d'abord ta clé Gemini dans Réglages, ou utilise « Coller depuis Claude ».", 'err')}</div>`; return; }
-const btn = $('#analyze'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Analyse en cours…';
-$('#analyze-msg').innerHTML = '';
-const d = draft;
-try {
-const text = await geminiAnalyze(d.image, $('#m-note').value.trim());
-if (draft !== d) return;
-applyResult(normalizeResult(extractJSON(text)), 'gemini');
-btn.innerHTML = `${icon('spark')}Relancer l'analyse`;
-} catch (e) {
-if (draft !== d) return;
-$('#analyze-msg').innerHTML = `<div style="margin-top:12px">${banner('info', esc(e instanceof SyntaxError ? "Réponse de l'IA illisible. Relance l'analyse." : geminiErrorText(e)), 'err')}</div>`;
-btn.innerHTML = `${icon('spark')}Analyser la photo`;
-} finally { btn.disabled = false; }
+  if (!draft || !draft.image) return;
+  if (!settings.key) { $('#analyze-msg').innerHTML = banner('info', "Ajoute d'abord ta clé Gemini dans Réglages, ou utilise « Coller depuis Claude ».", 'err'); return; }
+  const btn = $('#analyze'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Analyse en cours…';
+  $('#analyze-msg').innerHTML = ''; const d = draft;
+  try {
+    const text = await geminiAnalyze(d.image, $('#m-note').value.trim());
+    if (draft !== d) return;
+    applyResult(normalizeResult(extractJSON(text)), 'gemini');
+    btn.innerHTML = `${icon('spark')}Relancer l'analyse`;
+  } catch (e) {
+    if (draft !== d) return;
+    $('#analyze-msg').innerHTML = banner('info', esc(e instanceof SyntaxError ? "Réponse de l'IA illisible. Relance l'analyse." : geminiErrorText(e)), 'err');
+    btn.innerHTML = `${icon('spark')}Analyser la photo`;
+  } finally { btn.disabled = false; }
 });
 $('#open-claude').addEventListener('click', () => { $('#claude-box').classList.toggle('hidden'); $('#claude-box').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 async function copyText(t) {
-try { await navigator.clipboard.writeText(t); return true; } catch {
-const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
-let ok = false; try { ok = document.execCommand('copy'); } catch {} ta.remove(); return ok;
-}
+  try { await navigator.clipboard.writeText(t); return true; } catch {
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {} ta.remove(); return ok;
+  }
 }
 $('#copy-prompt').addEventListener('click', async () => {
-const ok = await copyText(buildPrompt($('#m-note').value.trim(), true));
-toast(ok ? 'Consigne copiée ✓ Ouvre Claude, ajoute la photo et colle.' : 'Copie impossible : réessaie.');
+  const ok = await copyText(buildPrompt($('#m-note').value.trim(), true));
+  toast(ok ? 'Consigne copiée ✓ Ouvre Claude, ajoute la photo et colle.' : 'Copie impossible : réessaie.');
 });
 function importClaude(text) {
-try { applyResult(normalizeResult(extractJSON(text)), 'claude'); $('#claude-box').classList.add('hidden'); toast('Analyse de Claude importée ✓'); }
-catch { toast("Réponse non reconnue. Copie bien tout le bloc de Claude."); }
+  try { applyResult(normalizeResult(extractJSON(text)), 'claude'); $('#claude-box').classList.add('hidden'); toast('Analyse de Claude importée ✓'); }
+  catch { toast('Réponse non reconnue. Copie bien tout le bloc de Claude.'); }
 }
 $('#paste-claude').addEventListener('click', async () => {
-try { const t = await navigator.clipboard.readText(); if (!t) throw new Error(); $('#claude-text').value = t; importClaude(t); }
-catch { toast('Colle la réponse dans le champ en dessous (appui long → Coller).'); $('#claude-text').focus(); }
+  try { const t = await navigator.clipboard.readText(); if (!t) throw new Error(); $('#claude-text').value = t; importClaude(t); }
+  catch { toast('Colle la réponse dans le champ en dessous (appui long → Coller).'); $('#claude-text').focus(); }
 });
 $('#import-claude').addEventListener('click', () => importClaude($('#claude-text').value));
 function collectDraft() {
-draft.date = $('#m-date').value || draft.date; draft.time = $('#m-time').value || draft.time; draft.note = $('#m-note').value.trim();
-draft.items = draft.items.filter((it) => (it.nom || '').trim() || num(it.kcal) > 0)
-.map((it) => ({ nom: (it.nom || '').trim() || 'Aliment', g: r0(num(it.g)), kcal: r0(num(it.kcal)), p: r1(num(it.p)), c: r1(num(it.c)), f: r1(num(it.f)) }));
+  draft.date = $('#m-date').value || draft.date; draft.time = $('#m-time').value || draft.time; draft.note = $('#m-note').value.trim();
+  draft.items = draft.items.filter((it) => (it.nom || '').trim() || num(it.kcal) > 0)
+    .map((it) => ({ nom: (it.nom || '').trim() || 'Aliment', g: r0(num(it.g)), kcal: r0(num(it.kcal)), p: r1(num(it.p)), c: r1(num(it.c)), f: r1(num(it.f)) }));
 }
 async function saveDraft() {
-collectDraft();
-if (!draft.items.length) { toast("Ajoute au moins un aliment (ou lance l'analyse)."); return; }
-const id = draft.id || ('m' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
-const meal = { id, date: draft.date, time: draft.time, type: draft.type, items: draft.items, note: draft.note, confiance: draft.confiance || '', source: draft.source || 'manuel', photo: !!draft.thumb };
-const idx = meals.findIndex((m) => m.id === id);
-if (idx >= 0) meals[idx] = meal; else meals.push(meal);
-if (!saveMeals()) return;
-if (draft.thumb && draft.isNew) await photoDB.put(id, draft.thumb);
-currentDay = meal.date;
-closeSheet(); show('today'); toast('Repas enregistré ✓');
+  collectDraft();
+  if (!draft.items.length) { toast("Ajoute au moins un aliment (ou lance l'analyse)."); return; }
+  const id = draft.id || ('m' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  const meal = { id, date: draft.date, time: draft.time, type: draft.type, items: draft.items, note: draft.note, confiance: draft.confiance || '', source: draft.source || 'manuel', photo: !!draft.thumb };
+  if (draft.recipe) meal.recipe = draft.recipe;
+  const idx = meals.findIndex((m) => m.id === id);
+  if (idx >= 0) meals[idx] = meal; else meals.push(meal);
+  if (!saveMeals()) return;
+  if (draft.thumb && draft.isNew) await photoDB.put(id, draft.thumb);
+  currentDay = meal.date;
+  closeSheet(); show('journal'); toast('Repas enregistré ✓');
 }
 $('#sheet-save').addEventListener('click', saveDraft);
-$('#sheet').addEventListener('scroll', () => { $('#sheet-head').classList.toggle('scrolled', $('#sheet').scrollTop > ($('#photo-hero').classList.contains('hidden') ? 10 : 230)); }, { passive: true });
 $('#sheet-cancel').addEventListener('click', closeSheet);
 $('#sheet-delete').addEventListener('click', async () => {
-if (!draft || !draft.id) return;
-if (!confirm('Supprimer ce repas ?')) return;
-meals = meals.filter((m) => m.id !== draft.id); saveMeals(); await photoDB.del(draft.id);
-closeSheet(); show('today'); toast('Repas supprimé');
+  if (!draft || !draft.id) return;
+  if (!confirm('Supprimer ce repas ?')) return;
+  meals = meals.filter((m) => m.id !== draft.id); saveMeals(); await photoDB.del(draft.id);
+  closeSheet(); refreshCurrent(); toast('Repas supprimé');
 });
-/* ---------- Événements généraux ---------- */
-$$('.tab[data-tab]').forEach((b) => b.addEventListener('click', () => { if (b.dataset.tab === 'today') currentDay = todayISO(); show(b.dataset.tab); }));
-document.addEventListener('click', (e) => { const a = e.target.closest('[data-go]'); if (a) { e.preventDefault(); show(a.dataset.go); } });
-$('#shoot').addEventListener('click', () => { $('#photo-input').value = ''; $('#photo-input').click(); });
+
+/* ---------- Ajout ---------- */
+const openMenu = () => $('#add-menu').classList.remove('hidden');
+const closeMenu = () => $('#add-menu').classList.add('hidden');
+$('#tab-add').addEventListener('click', openMenu);
+$('#feed-add').addEventListener('click', openMenu);
+$('#add-menu').addEventListener('click', (e) => {
+  if (e.target.closest('[data-close-menu]')) { closeMenu(); return; }
+  const b = e.target.closest('[data-add]'); if (!b) return; closeMenu();
+  const day = currentView === 'journal' ? currentDay : todayISO(); currentDay = day;
+  const time = day === todayISO() ? nowTime() : '12:00';
+  if (b.dataset.add === 'photo') { $('#photo-input').value = ''; $('#photo-input').click(); }
+  if (b.dataset.add === 'claude') { openSheet({ id: null, isNew: true, date: day, time, type: guessType(time), items: [], note: '' }); $('#claude-box').classList.remove('hidden'); }
+  if (b.dataset.add === 'manual') openSheet({ id: null, isNew: true, date: day, time, type: guessType(time), items: [{ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }], note: '' });
+  if (b.dataset.add === 'recipe') { exploreCat = 'fit'; show('explore'); }
+});
 $('#photo-input').addEventListener('change', (e) => onPhoto(e.target.files[0]));
-$('#tab-claude').addEventListener('click', () => {
-const time = nowTime();
-openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [], note: '' });
-$('#claude-box').classList.remove('hidden');
-});
 $('#add-manual').addEventListener('click', () => {
-const time = currentDay === todayISO() ? nowTime() : '12:00';
-openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [{ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }], note: '' });
+  const time = currentDay === todayISO() ? nowTime() : '12:00';
+  openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [{ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }], note: '' });
 });
+
+/* ---------- Clics généraux ---------- */
+let lastTap = { id: null, t: 0 };
+document.addEventListener('click', async (e) => {
+  const go = e.target.closest('[data-go]'); if (go) { e.preventDefault(); if (go.dataset.go === 'journal') currentDay = todayISO(); show(go.dataset.go); return; }
+  const tab = e.target.closest('.tab[data-tab]'); if (tab) { if (tab.dataset.tab === 'journal') currentDay = todayISO(); if (tab.dataset.tab === currentView) window.scrollTo({ top: 0, behavior: 'smooth' }); else show(tab.dataset.tab); return; }
+  const cat = e.target.closest('[data-cat]'); if (cat) { feedCat = feedCat === cat.dataset.cat ? 'all' : cat.dataset.cat; renderFeed(); window.scrollTo({ top: 0 }); return; }
+  const chip = e.target.closest('[data-chip]'); if (chip) { exploreCat = exploreCat === chip.dataset.chip ? 'all' : chip.dataset.chip; renderExplore(); return; }
+  const like = e.target.closest('[data-like]'); if (like) { toggleLike(like.dataset.like); return; }
+  const sv = e.target.closest('[data-save]'); if (sv) { toggleSave(sv.dataset.save); if (currentView === 'profile') renderProfile(); return; }
+  const sh = e.target.closest('[data-share]'); if (sh) { shareRecipe(sh.dataset.share); return; }
+  const eat = e.target.closest('[data-eat]'); if (eat) { logRecipe(eat.dataset.eat, 1); return; }
+  const op = e.target.closest('[data-open]'); if (op) { openRecipe(op.dataset.open); return; }
+  const vis = e.target.closest('#feed [data-vis]');
+  if (vis) {
+    // Double-tap sur la photo = J'aime (comme Instagram)
+    const id = vis.dataset.vis; const now = Date.now();
+    if (lastTap.id === id && now - lastTap.t < 350) {
+      toggleLike(id, null, true); const p = vis.querySelector('.pop'); p.classList.remove('go'); void p.getBoundingClientRect(); p.classList.add('go'); lastTap = { id: null, t: 0 };
+    } else { lastTap = { id, t: now }; }
+    return;
+  }
+  const ml = e.target.closest('[data-meal]');
+  if (ml) {
+    const m = meals.find((x) => x.id === ml.dataset.meal); if (!m) return;
+    const thumb = m.photo ? await photoDB.get(m.id) : null;
+    openSheet({ ...JSON.parse(JSON.stringify(m)), isNew: false, thumb, image: null }); return;
+  }
+  const dy = e.target.closest('[data-day]'); if (dy) { currentDay = dy.dataset.day; show('journal'); return; }
+  const pt = e.target.closest('[data-ptab]'); if (pt) { ptab = pt.dataset.ptab; renderProfile(); }
+});
+$('#q').addEventListener('input', renderExplore);
 $('#week').addEventListener('click', (e) => {
-const d = e.target.closest('[data-wd]');
-if (d) { currentDay = d.dataset.wd; renderToday(); return; }
-if (e.target.closest('#prev-week')) { currentDay = shiftDate(currentDay, -7); renderToday(); }
-if (e.target.closest('#next-week')) { const n = shiftDate(currentDay, 7); currentDay = n > todayISO() ? todayISO() : n; renderToday(); }
+  const d = e.target.closest('[data-wd]');
+  if (d) { currentDay = d.dataset.wd; renderJournal(); return; }
+  if (e.target.closest('#prev-week')) { currentDay = shiftDate(currentDay, -7); renderJournal(); }
+  if (e.target.closest('#next-week')) { const n = shiftDate(currentDay, 7); currentDay = n > todayISO() ? todayISO() : n; renderJournal(); }
 });
-$('#meal-list').addEventListener('click', async (e) => {
-const b = e.target.closest('[data-meal]'); if (!b) return;
-const m = meals.find((x) => x.id === b.dataset.meal); if (!m) return;
-const thumb = m.photo ? await photoDB.get(m.id) : null;
-openSheet({ ...JSON.parse(JSON.stringify(m)), isNew: false, thumb, image: null });
-});
-$('#history-list').addEventListener('click', (e) => { const b = e.target.closest('[data-day]'); if (!b) return; currentDay = b.dataset.day; show('today'); });
+
+/* ---------- Réglages ---------- */
 $('#save-targets').addEventListener('click', () => {
-const v = (id, d) => { const n = r0(num($(id).value)); return n > 0 ? n : d; };
-settings.kcal = v('#t-kcal', DEFAULTS.kcal); settings.p = v('#t-p', DEFAULTS.p); settings.c = v('#t-c', DEFAULTS.c); settings.f = v('#t-f', DEFAULTS.f);
-saveSettings(); renderSettings(); toast('Objectifs enregistrés ✓');
+  const v = (id, d) => { const n = r0(num($(id).value)); return n > 0 ? n : d; };
+  settings.kcal = v('#t-kcal', DEFAULTS.kcal); settings.p = v('#t-p', DEFAULTS.p); settings.c = v('#t-c', DEFAULTS.c); settings.f = v('#t-f', DEFAULTS.f);
+  saveSettings(); renderSettings(); toast('Objectifs enregistrés ✓');
 });
 $('#toggle-key').addEventListener('click', () => { const i = $('#api-key'); i.type = i.type === 'password' ? 'text' : 'password'; });
 $('#save-key').addEventListener('click', async () => {
-settings.key = $('#api-key').value.trim(); settings.model = $('#model').value.trim(); saveSettings();
-const st = $('#key-status');
-if (!settings.key) { st.innerHTML = banner('info', 'Clé effacée.'); return; }
-const btn = $('#save-key'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Test en cours…';
-try {
-const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', { headers: { 'x-goog-api-key': settings.key } });
-const data = await res.json().catch(() => ({}));
-if (!res.ok) { const e = new Error((data.error && data.error.message) || 'HTTP ' + res.status); e.status = res.status; throw e; }
-st.innerHTML = banner('check', "<b>Clé valide !</b> L'analyse automatique est prête.");
-} catch (e) {
-st.innerHTML = banner('info', esc(geminiErrorText(e)), 'err');
-} finally { btn.disabled = false; btn.textContent = 'Enregistrer et tester'; }
+  settings.key = $('#api-key').value.trim(); settings.model = $('#model').value.trim(); saveSettings();
+  const st = $('#key-status');
+  if (!settings.key) { st.innerHTML = banner('info', 'Clé effacée.'); return; }
+  const btn = $('#save-key'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Test en cours…';
+  try {
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', { headers: { 'x-goog-api-key': settings.key } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error((data.error && data.error.message) || 'HTTP ' + res.status); e.status = res.status; throw e; }
+    st.innerHTML = banner('check', "<b>Clé valide !</b> L'analyse des photos est prête.");
+  } catch (e) { st.innerHTML = banner('info', esc(geminiErrorText(e)), 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Enregistrer et tester'; }
 });
-$('#export').addEventListener('click', async () => {
-const photos = await photoDB.all();
-const payload = { app: 'mon-assiette', version: 1, exportedAt: new Date().toISOString(), settings: { kcal: settings.kcal, p: settings.p, c: settings.c, f: settings.f }, meals, photos };
-const name = `mon-assiette-${todayISO()}.json`;
-const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-try {
-const file = new File([blob], name, { type: 'application/json' });
-if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Sauvegarde Mon Assiette' }); return; }
-} catch (e) { if (e.name === 'AbortError') return; }
-const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
-setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-});
+async function exportData() {
+  const photos = await photoDB.all();
+  const payload = { app: 'mon-assiette', version: 2, exportedAt: new Date().toISOString(), settings: { kcal: settings.kcal, p: settings.p, c: settings.c, f: settings.f }, meals, saved: [...savedR], liked: [...likedR], photos };
+  const name = `mon-assiette-${todayISO()}.json`;
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  try {
+    const file = new File([blob], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Sauvegarde Mon Assiette' }); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+$('#export').addEventListener('click', exportData);
+$('#p-export').addEventListener('click', exportData);
 $('#import-btn').addEventListener('click', () => { $('#import-file').value = ''; $('#import-file').click(); });
 $('#import-file').addEventListener('change', async (e) => {
-const file = e.target.files[0]; if (!file) return;
-try {
-const data = JSON.parse(await file.text());
-if (!data || !Array.isArray(data.meals)) throw new Error();
-if (!confirm(`Importer ${data.meals.length} repas ? Les repas déjà présents sont gardés.`)) return;
-const ids = new Set(meals.map((m) => m.id));
-for (const m of data.meals) if (m && m.id && !ids.has(m.id)) meals.push(m);
-if (data.settings) Object.assign(settings, data.settings);
-saveMeals(); saveSettings();
-if (data.photos) for (const [id, src] of Object.entries(data.photos)) await photoDB.put(id, src);
-toast('Sauvegarde importée ✓'); renderSettings();
-} catch { toast("Ce fichier n'est pas une sauvegarde Mon Assiette."); }
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || !Array.isArray(data.meals)) throw new Error();
+    if (!confirm(`Importer ${data.meals.length} repas ? Les repas déjà présents sont gardés.`)) return;
+    const ids = new Set(meals.map((m) => m.id));
+    for (const m of data.meals) if (m && m.id && !ids.has(m.id)) meals.push(m);
+    if (data.settings) Object.assign(settings, data.settings);
+    if (Array.isArray(data.saved)) { data.saved.forEach((x) => savedR.add(x)); store.set('saved', [...savedR]); }
+    if (Array.isArray(data.liked)) { data.liked.forEach((x) => likedR.add(x)); store.set('liked', [...likedR]); }
+    saveMeals(); saveSettings();
+    if (data.photos) for (const [id, src] of Object.entries(data.photos)) await photoDB.put(id, src);
+    toast('Sauvegarde importée ✓'); renderSettings();
+  } catch { toast("Ce fichier n'est pas une sauvegarde Mon Assiette."); }
 });
 $('#wipe').addEventListener('click', async () => {
-if (!confirm('Effacer TOUS tes repas ? Cette action est définitive.')) return;
-meals = []; saveMeals(); await photoDB.clear(); toast('Données effacées'); renderSettings();
+  if (!confirm('Effacer TOUS tes repas ? Cette action est définitive.')) return;
+  meals = []; saveMeals(); await photoDB.clear(); toast('Données effacées'); renderSettings();
 });
+
 /* ---------- Démarrage ---------- */
 const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 if (isIOS && !standalone) $('#install-hint').classList.remove('hidden');
-document.addEventListener('visibilitychange', () => { if (!document.hidden && $('#sheet').classList.contains('hidden') && !$('#view-today').classList.contains('hidden')) renderToday(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && $('#sheet').classList.contains('hidden')) refreshCurrent(); });
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
-show('today');
+show('feed');
 </script>
 </body>
 </html>
