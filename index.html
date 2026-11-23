@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon Assiette</title>
+<meta name="description" content="Photo de ton repas, calories et macros estimées.">
+<meta name="theme-color" content="#16a34a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Assiette">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root {
+  --bg: #f4f6f5; --card: #ffffff; --text: #14201a; --muted: #66756d; --line: #e2e8e5;
+  --accent: #16a34a; --accent-soft: #dcfce7; --danger: #dc2626; --warn: #d97706;
+  --p: #2563eb; --c: #d97706; --f: #db2777;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05);
+  --r: 16px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1412; --card: #1a211e; --text: #eef3f0; --muted: #93a39a; --line: #2a3430;
+    --accent: #22c55e; --accent-soft: #14321f; --danger: #f87171; --warn: #fbbf24;
+    --p: #60a5fa; --c: #fbbf24; --f: #f472b6;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body {
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  padding: env(safe-area-inset-top) 0 calc(88px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+h1 { font-size: 28px; margin: 14px 0 4px; letter-spacing: -.02em; }
+h2 { font-size: 18px; margin: 22px 0 10px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.card { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px; margin-bottom: 12px; border: 1px solid var(--line); }
+.row { display: flex; align-items: center; gap: 10px; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.hidden { display: none !important; }
+
+/* Boutons */
+.btn { border: 0; border-radius: 12px; padding: 13px 16px; font-weight: 600; background: var(--accent-soft); color: var(--accent); width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--text); }
+.btn.danger { background: transparent; color: var(--danger); border: 1px solid var(--line); }
+.btn:disabled { opacity: .5; }
+.btn + .btn { margin-top: 10px; }
+.icon-btn { border: 0; background: transparent; width: 40px; height: 40px; border-radius: 20px; font-size: 22px; color: var(--text); display: grid; place-items: center; }
+.icon-btn:active { background: var(--line); }
+
+/* Navigation du jour */
+.daynav { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.daynav .label { font-weight: 600; text-align: center; flex: 1; }
+
+/* Jauge */
+.gauge { display: flex; align-items: center; gap: 18px; }
+.ring { width: 132px; height: 132px; flex: none; position: relative; }
+.ring svg { transform: rotate(-90deg); }
+.ring .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.ring .big { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+.ring .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.macros { flex: 1; min-width: 0; display: grid; gap: 10px; }
+.macro .top { display: flex; justify-content: space-between; font-size: 13px; }
+.macro .top b { font-weight: 600; }
+.bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin-top: 4px; }
+.bar > i { display: block; height: 100%; border-radius: 4px; }
+.over { color: var(--danger); }
+
+/* Repas */
+.meal { display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 10px; box-shadow: var(--shadow); width: 100%; text-align: left; }
+.thumb { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; background: var(--line); flex: none; display: grid; place-items: center; font-size: 24px; }
+.meal .t { font-weight: 600; }
+.meal .kcal { font-weight: 700; white-space: nowrap; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 4px; margin-right: 3px; vertical-align: 0; }
+.empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+.empty .e { font-size: 40px; }
+
+/* Barre du bas */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--card) 92%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); z-index: 20; }
+.tabbar .in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 84px 1fr 1fr; align-items: center; }
+.tab { border: 0; background: transparent; color: var(--muted); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; }
+.tab .i { font-size: 22px; line-height: 1; }
+.tab.on { color: var(--accent); font-weight: 600; }
+.shoot { width: 64px; height: 64px; border-radius: 32px; border: 0; background: var(--accent); color: #fff; font-size: 28px; margin: -26px auto 0; box-shadow: 0 6px 18px rgba(22,163,74,.45); display: grid; place-items: center; }
+.shoot:active { transform: scale(.96); }
+
+/* Feuille d'édition */
+.sheet { position: fixed; inset: 0; background: var(--bg); z-index: 30; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: env(safe-area-inset-top) 0 calc(24px + env(safe-area-inset-bottom)); }
+.sheet-head { position: sticky; top: 0; z-index: 2; background: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+.sheet-head .ttl { font-weight: 700; }
+.link-btn { border: 0; background: transparent; color: var(--accent); font-weight: 600; padding: 8px 10px; }
+.photo-big { width: 100%; max-height: 280px; object-fit: cover; border-radius: var(--r); display: block; margin: 12px 0; background: var(--line); }
+
+label.f { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input.in, textarea.in, select.in { width: 100%; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 11px 12px; font-size: 16px; outline: none; }
+input.in:focus, textarea.in:focus, select.in:focus { border-color: var(--accent); }
+textarea.in { resize: vertical; min-height: 70px; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.seg button { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 9px 2px; font-size: 13px; }
+.seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+.item { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 10px; }
+.item .name { font-weight: 600; border: 0; background: transparent; padding: 4px 0; width: 100%; font-size: 16px; outline: none; border-bottom: 1px dashed var(--line); }
+.grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+.grid5 label { font-size: 11px; color: var(--muted); display: block; text-align: center; margin-bottom: 2px; }
+.grid5 input { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 2px; font-size: 15px; text-align: center; outline: none; }
+.grid5 input:focus { border-color: var(--accent); }
+.del { border: 0; background: transparent; color: var(--danger); font-size: 13px; padding: 6px 0 0; }
+
+.totals { position: sticky; bottom: 0; background: var(--bg); padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 8px; }
+.totals .nums { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-bottom: 10px; }
+.totals .nums b { display: block; font-size: 18px; }
+.totals .nums span { font-size: 11px; color: var(--muted); }
+
+.notice { border-radius: 12px; padding: 12px 14px; font-size: 14px; margin: 10px 0; background: var(--accent-soft); }
+.notice.err { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.notice.warn { background: color-mix(in srgb, var(--warn) 16%, transparent); }
+.steps { margin: 0; padding-left: 20px; }
+.steps li { margin-bottom: 6px; }
+
+.spinner { width: 18px; height: 18px; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.day { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 10px; width: 100%; text-align: left; box-shadow: var(--shadow); }
+.day .d { font-weight: 600; }
+
+.toast { position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 22px; font-size: 14px; z-index: 50; max-width: 90vw; text-align: center; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ===== AUJOURD'HUI ===== -->
+<main id="view-today" class="wrap">
+  <h1 id="today-title">Aujourd'hui</h1>
+  <div class="daynav">
+    <button class="icon-btn" id="prev-day" aria-label="Jour précédent">‹</button>
+    <div class="label" id="day-label"></div>
+    <button class="icon-btn" id="next-day" aria-label="Jour suivant">›</button>
+  </div>
+
+  <div id="install-hint" class="notice warn hidden">
+    <b>Astuce :</b> pour l'utiliser comme une vraie app, appuie sur <b>Partager</b> (le carré avec la flèche) puis <b>Sur l'écran d'accueil</b>. Utilise ensuite toujours l'icône : tes repas y sont enregistrés.
+  </div>
+  <div id="key-hint" class="notice hidden">
+    Pour que l'analyse automatique marche, ajoute ta clé Gemini gratuite dans <a href="#" data-go="settings">Réglages</a>. En attendant, tu peux utiliser « Coller depuis Claude ».
+  </div>
+
+  <div class="card">
+    <div class="gauge">
+      <div class="ring" id="ring"></div>
+      <div class="macros" id="macro-bars"></div>
+    </div>
+  </div>
+
+  <div class="row between">
+    <h2>Repas</h2>
+    <button class="link-btn" id="add-manual">+ Sans photo</button>
+  </div>
+  <div id="meal-list"></div>
+</main>
+
+<!-- ===== HISTORIQUE ===== -->
+<main id="view-history" class="wrap hidden">
+  <h1>Historique</h1>
+  <p class="muted small">Appuie sur un jour pour le revoir ou le modifier.</p>
+  <div id="history-list"></div>
+</main>
+
+<!-- ===== RÉGLAGES ===== -->
+<main id="view-settings" class="wrap hidden">
+  <h1>Réglages</h1>
+
+  <h2>Objectifs du jour</h2>
+  <div class="card">
+    <div class="row">
+      <div class="grow"><label class="f" for="t-kcal">Calories (kcal)</label><input class="in" id="t-kcal" inputmode="numeric"></div>
+      <div class="grow"><label class="f" for="t-p">Protéines (g)</label><input class="in" id="t-p" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div class="grow"><label class="f" for="t-c">Glucides (g)</label><input class="in" id="t-c" inputmode="numeric"></div>
+      <div class="grow"><label class="f" for="t-f">Lipides (g)</label><input class="in" id="t-f" inputmode="numeric"></div>
+    </div>
+    <p class="small muted">Calculés pour la perte de poids (environ −0,5 kg par semaine). Si ton poids ne baisse pas après 2 à 3 semaines, baisse de 150 à 200 kcal.</p>
+    <button class="btn" id="save-targets">Enregistrer les objectifs</button>
+  </div>
+
+  <h2>Analyse automatique (Gemini)</h2>
+  <div class="card">
+    <p class="small" style="margin-top:0">Ta clé gratuite Google reste uniquement sur ce téléphone. Pour l'obtenir : <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> → « Create API key » → copier.</p>
+    <label class="f" for="api-key">Clé API Gemini</label>
+    <div class="row">
+      <input class="in grow" id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…">
+      <button class="icon-btn" id="toggle-key" aria-label="Afficher la clé">👁</button>
+    </div>
+    <div id="key-status"></div>
+    <button class="btn primary" id="save-key" style="margin-top:12px">Enregistrer et tester la clé</button>
+    <details style="margin-top:12px">
+      <summary class="small muted">Réglage avancé</summary>
+      <label class="f" for="model">Modèle Gemini (laisse vide pour automatique)</label>
+      <input class="in" id="model" autocapitalize="off" spellcheck="false" placeholder="automatique">
+    </details>
+  </div>
+
+  <h2>Mes données</h2>
+  <div class="card">
+    <p class="small muted" style="margin-top:0">Tout est gardé sur ce téléphone. Exporte de temps en temps pour garder une copie (Fichiers, iCloud, e-mail…).</p>
+    <button class="btn" id="export">Exporter mes données</button>
+    <button class="btn ghost" id="import-btn">Importer une sauvegarde</button>
+    <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+    <button class="btn danger" id="wipe">Tout effacer</button>
+  </div>
+  <p class="small muted" style="text-align:center">Mon Assiette · V1</p>
+</main>
+
+<!-- ===== BARRE DU BAS ===== -->
+<nav class="tabbar">
+  <div class="in">
+    <button class="tab on" data-tab="today"><span class="i">🍽️</span>Aujourd'hui</button>
+    <button class="tab" data-tab="history"><span class="i">📅</span>Historique</button>
+    <button class="shoot" id="shoot" aria-label="Prendre une photo">📷</button>
+    <button class="tab" id="tab-claude"><span class="i">📋</span>Claude</button>
+    <button class="tab" data-tab="settings"><span class="i">⚙️</span>Réglages</button>
+  </div>
+</nav>
+<input type="file" id="photo-input" accept="image/*" class="hidden">
+
+<!-- ===== FEUILLE : REPAS ===== -->
+<section id="sheet" class="sheet hidden" aria-modal="true" role="dialog">
+  <div class="sheet-head">
+    <button class="link-btn" id="sheet-cancel">Annuler</button>
+    <div class="ttl" id="sheet-title">Repas</div>
+    <button class="link-btn" id="sheet-save-top">OK</button>
+  </div>
+  <div class="wrap">
+    <img id="sheet-photo" class="photo-big hidden" alt="Photo du repas">
+
+    <div class="seg" id="type-seg"></div>
+    <div class="row" style="margin-top:4px">
+      <div class="grow"><label class="f" for="m-date">Jour</label><input class="in" type="date" id="m-date"></div>
+      <div class="grow"><label class="f" for="m-time">Heure</label><input class="in" type="time" id="m-time"></div>
+    </div>
+
+    <div id="analyze-box">
+      <label class="f" for="m-note">Précision pour l'IA (facultatif)</label>
+      <textarea class="in" id="m-note" rows="2" placeholder="ex. 200 g de riz, poulet grillé, sauce à part"></textarea>
+      <div id="analyze-msg"></div>
+      <button class="btn primary" id="analyze" style="margin-top:10px">✨ Analyser la photo</button>
+      <button class="btn ghost" id="open-claude">📋 Coller depuis Claude</button>
+    </div>
+
+    <div id="claude-box" class="card hidden" style="margin-top:12px">
+      <b>Analyse avec ton Claude Pro</b>
+      <ol class="steps small" style="margin-top:8px">
+        <li>Appuie sur <b>Copier la consigne</b>.</li>
+        <li>Ouvre l'app Claude, ajoute la photo du repas, colle la consigne et envoie.</li>
+        <li>Copie la réponse de Claude (bouton copier sous le bloc de code).</li>
+        <li>Reviens ici et appuie sur <b>Coller la réponse</b>.</li>
+      </ol>
+      <button class="btn" id="copy-prompt">1. Copier la consigne</button>
+      <button class="btn primary" id="paste-claude">2. Coller la réponse</button>
+      <label class="f" for="claude-text">Ou colle-la ici à la main :</label>
+      <textarea class="in" id="claude-text" rows="3" placeholder='{"aliments": [...]}'></textarea>
+      <button class="btn ghost" id="import-claude" style="margin-top:8px">Utiliser ce texte</button>
+    </div>
+
+    <div id="confidence"></div>
+    <div class="row between">
+      <h2>Aliments</h2>
+      <button class="link-btn" id="add-item">+ Ajouter</button>
+    </div>
+    <div id="items"></div>
+
+    <div class="totals">
+      <div class="nums" id="sheet-totals"></div>
+      <button class="btn primary" id="sheet-save">Enregistrer le repas</button>
+    </div>
+    <button class="btn danger hidden" id="sheet-delete" style="margin-top:14px">Supprimer ce repas</button>
+  </div>
+</section>
+
+<script>
+'use strict';
+/* =========================================================
+   Mon Assiette — V1
+   Toutes les données restent sur le téléphone :
+   - repas et réglages : localStorage
+   - petites photos : IndexedDB
+   ========================================================= */
+
+const DEFAULTS = { kcal: 2500, p: 160, c: 305, f: 70, key: '', model: '' };
+const TYPES = [
+  { id: 'petitdej', label: 'Petit-déj', icon: '🥐' },
+  { id: 'dejeuner', label: 'Déjeuner', icon: '🍛' },
+  { id: 'diner', label: 'Dîner', icon: '🍲' },
+  { id: 'collation', label: 'Collation', icon: '🍎' },
+];
+const MODEL_CANDIDATES = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const num = (v) => { const n = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(n) ? n : 0; };
+const r0 = (n) => Math.round(n);
+const r1 = (n) => Math.round(n * 10) / 10;
+
+/* ---------- Stockage ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('assiette.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('assiette.' + k, JSON.stringify(v)); return true; } catch (e) { toast("Stockage plein : exporte puis efface d'anciennes données."); return false; } },
+};
+let settings = Object.assign({}, DEFAULTS, store.get('settings', {}));
+let meals = store.get('meals', []);
+const saveMeals = () => store.set('meals', meals);
+const saveSettings = () => store.set('settings', settings);
+
+const photoDB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    if (!('indexedDB' in window)) return rej(new Error('no idb'));
+    const rq = indexedDB.open('assiette', 1);
+    rq.onupgradeneeded = () => rq.result.createObjectStore('photos');
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => rej(rq.error);
+  }));
+  const tx = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('photos', mode); const s = t.objectStore('photos');
+      const r = fn(s); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
+    });
+  };
+  return {
+    get: (id) => tx('readonly', (s) => s.get(id)).catch(() => null),
+    put: (id, v) => tx('readwrite', (s) => s.put(v, id)).catch(() => null),
+    del: (id) => tx('readwrite', (s) => s.delete(id)).catch(() => null),
+    all: async () => {
+      try {
+        const db = await open();
+        return await new Promise((res, rej) => {
+          const out = {}; const t = db.transaction('photos'); const c = t.objectStore('photos').openCursor();
+          c.onsuccess = () => { const cur = c.result; if (cur) { out[cur.key] = cur.value; cur.continue(); } };
+          t.oncomplete = () => res(out); t.onerror = () => rej(t.error);
+        });
+      } catch { return {}; }
+    },
+    clear: () => tx('readwrite', (s) => s.clear()).catch(() => null),
+  };
+})();
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+/* ---------- Dates ---------- */
+const pad = (n) => String(n).padStart(2, '0');
+const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const todayISO = () => isoDate(new Date());
+const nowTime = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const shiftDate = (iso, days) => { const [y, m, d] = iso.split('-').map(Number); const dt = new Date(y, m - 1, d + days); return isoDate(dt); };
+function dayName(iso, long = true) {
+  const t = todayISO();
+  if (iso === t) return "Aujourd'hui";
+  if (iso === shiftDate(t, -1)) return 'Hier';
+  const [y, m, d] = iso.split('-').map(Number);
+  const s = new Date(y, m - 1, d).toLocaleDateString('fr-FR', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function longDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+function guessType(time) {
+  const [h, m] = time.split(':').map(Number); const x = h + m / 60;
+  if (x < 10.5) return 'petitdej';
+  if (x < 15) return 'dejeuner';
+  if (x < 18) return 'collation';
+  return 'diner';
+}
+
+/* ---------- Calculs ---------- */
+const sumItems = (items) => items.reduce((a, it) => ({ kcal: a.kcal + num(it.kcal), p: a.p + num(it.p), c: a.c + num(it.c), f: a.f + num(it.f) }), { kcal: 0, p: 0, c: 0, f: 0 });
+const mealsOf = (iso) => meals.filter((m) => m.date === iso).sort((a, b) => a.time.localeCompare(b.time));
+const dayTotals = (iso) => sumItems(mealsOf(iso).flatMap((m) => m.items));
+
+/* ---------- Petits utilitaires d'interface ---------- */
+let toastTimer;
+function toast(msg) {
+  let el = $('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.remove('hidden');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.add('hidden'), 2800);
+}
+
+/* =========================================================
+   Écran Aujourd'hui
+   ========================================================= */
+let currentDay = todayISO();
+
+function ringSVG(value, target) {
+  const R = 56, C = 2 * Math.PI * R; const pct = target > 0 ? Math.min(value / target, 1) : 0;
+  const over = value > target;
+  const color = over ? 'var(--danger)' : 'var(--accent)';
+  const left = r0(target - value);
+  return `<svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+      <circle cx="66" cy="66" r="${R}" fill="none" stroke="var(--line)" stroke-width="12"/>
+      <circle cx="66" cy="66" r="${R}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" style="transition:stroke-dashoffset .5s"/>
+    </svg>
+    <div class="center"><div>
+      <div class="big ${over ? 'over' : ''}">${Math.abs(left).toLocaleString('fr-FR')}</div>
+      <div class="sub">${over ? 'kcal en trop' : 'kcal restantes'}</div>
+      <div class="sub">${r0(value).toLocaleString('fr-FR')} / ${r0(target).toLocaleString('fr-FR')}</div>
+    </div></div>`;
+}
+function macroBar(label, color, value, target) {
+  const pct = target > 0 ? Math.min(value / target * 100, 100) : 0; const left = r0(target - value);
+  return `<div class="macro"><div class="top"><b><span class="dot" style="background:${color}"></span>${label}</b>
+      <span class="${left < 0 ? 'over' : 'muted'}">${r0(value)} / ${r0(target)} g</span></div>
+      <div class="bar"><i style="width:${pct}%;background:${color}"></i></div></div>`;
+}
+
+function renderToday() {
+  const t = dayTotals(currentDay);
+  $('#today-title').textContent = currentDay === todayISO() ? "Aujourd'hui" : dayName(currentDay, false);
+  $('#day-label').textContent = longDate(currentDay);
+  $('#next-day').style.visibility = currentDay >= todayISO() ? 'hidden' : 'visible';
+  $('#ring').innerHTML = ringSVG(t.kcal, settings.kcal);
+  $('#macro-bars').innerHTML = macroBar('Protéines', 'var(--p)', t.p, settings.p) + macroBar('Glucides', 'var(--c)', t.c, settings.c) + macroBar('Lipides', 'var(--f)', t.f, settings.f);
+  $('#key-hint').classList.toggle('hidden', !!settings.key);
+
+  const list = mealsOf(currentDay);
+  const box = $('#meal-list');
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><div class="e">📷</div>Aucun repas ${currentDay === todayISO() ? "aujourd'hui" : 'ce jour-là'}.<br>Appuie sur le bouton photo pour commencer.</div>`;
+    return;
+  }
+  box.innerHTML = list.map((m) => {
+    const s = sumItems(m.items); const ty = TYPES.find((x) => x.id === m.type) || TYPES[3];
+    const names = m.items.map((i) => i.nom).filter(Boolean).join(', ');
+    return `<button class="meal" data-meal="${m.id}">
+        <div class="thumb" data-thumb="${m.photo ? m.id : ''}">${ty.icon}</div>
+        <div class="grow"><div class="t">${ty.label} <span class="muted small">· ${esc(m.time)}</span></div>
+          <div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(names) || '—'}</div>
+          <div class="chips"><span><span class="dot" style="background:var(--p)"></span>P ${r0(s.p)} g</span><span><span class="dot" style="background:var(--c)"></span>G ${r0(s.c)} g</span><span><span class="dot" style="background:var(--f)"></span>L ${r0(s.f)} g</span></div>
+        </div>
+        <div class="kcal">${r0(s.kcal)}<span class="small muted"> kcal</span></div>
+      </button>`;
+  }).join('');
+  $$('[data-thumb]').forEach(async (el) => {
+    const id = el.dataset.thumb; if (!id) return;
+    const src = await photoDB.get(id);
+    if (src) el.outerHTML = `<img class="thumb" src="${src}" alt="">`;
+  });
+}
+
+/* =========================================================
+   Écran Historique
+   ========================================================= */
+function renderHistory() {
+  const days = [...new Set(meals.map((m) => m.date))].sort().reverse();
+  const box = $('#history-list');
+  if (!days.length) { box.innerHTML = `<div class="empty"><div class="e">📅</div>Ton historique apparaîtra ici dès ton premier repas.</div>`; return; }
+  box.innerHTML = days.map((d) => {
+    const t = dayTotals(d); const n = mealsOf(d).length;
+    const pct = settings.kcal ? Math.min(t.kcal / settings.kcal * 100, 100) : 0; const over = t.kcal > settings.kcal;
+    return `<button class="day" data-day="${d}"><div class="grow">
+        <div class="row between"><span class="d">${esc(dayName(d))}</span><span><b class="${over ? 'over' : ''}">${r0(t.kcal).toLocaleString('fr-FR')}</b><span class="small muted"> / ${settings.kcal} kcal</span></span></div>
+        <div class="bar"><i style="width:${pct}%;background:${over ? 'var(--danger)' : 'var(--accent)'}"></i></div>
+        <div class="chips" style="margin-top:6px"><span>${n} repas</span><span>· P ${r0(t.p)} g</span><span>G ${r0(t.c)} g</span><span>L ${r0(t.f)} g</span></div>
+      </div><span class="muted">›</span></button>`;
+  }).join('');
+}
+
+/* =========================================================
+   Écran Réglages
+   ========================================================= */
+function renderSettings() {
+  $('#t-kcal').value = settings.kcal; $('#t-p').value = settings.p; $('#t-c').value = settings.c; $('#t-f').value = settings.f;
+  $('#api-key').value = settings.key; $('#model').value = settings.model;
+  $('#key-status').innerHTML = settings.key ? '<div class="notice small">Clé enregistrée sur ce téléphone.</div>' : '';
+}
+
+/* ---------- Navigation ---------- */
+function show(tab) {
+  ['today', 'history', 'settings'].forEach((v) => $('#view-' + v).classList.toggle('hidden', v !== tab));
+  $$('.tab[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  if (tab === 'today') renderToday();
+  if (tab === 'history') renderHistory();
+  if (tab === 'settings') renderSettings();
+  window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   Feuille de repas (analyse + correction)
+   ========================================================= */
+let draft = null; // { id, date, time, type, items, note, thumb, image(b64), isNew, confiance, remarque }
+
+function openSheet(d) {
+  draft = d;
+  $('#sheet-title').textContent = d.isNew ? 'Nouveau repas' : 'Modifier le repas';
+  $('#m-date').value = d.date; $('#m-time').value = d.time; $('#m-note').value = d.note || '';
+  const img = $('#sheet-photo');
+  if (d.thumb) { img.src = d.thumb; img.classList.remove('hidden'); } else img.classList.add('hidden');
+  $('#analyze-box').classList.toggle('hidden', !d.image && !d.isNew);
+  $('#analyze').classList.toggle('hidden', !d.image);
+  $('#analyze-msg').innerHTML = '';
+  $('#claude-box').classList.add('hidden');
+  $('#claude-text').value = '';
+  $('#sheet-delete').classList.toggle('hidden', d.isNew);
+  renderTypeSeg(); renderConfidence(); renderItems();
+  $('#sheet').classList.remove('hidden'); $('#sheet').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet() { $('#sheet').classList.add('hidden'); document.body.style.overflow = ''; draft = null; }
+
+function renderTypeSeg() {
+  $('#type-seg').innerHTML = TYPES.map((t) => `<button data-type="${t.id}" class="${draft.type === t.id ? 'on' : ''}">${t.icon} ${t.label}</button>`).join('');
+}
+function renderConfidence() {
+  const c = draft.confiance; const box = $('#confidence');
+  if (!c && !draft.remarque) { box.innerHTML = ''; return; }
+  const cls = /faible/i.test(c || '') ? 'warn' : '';
+  box.innerHTML = `<div class="notice ${cls} small">${c ? `<b>Confiance de l'IA : ${esc(c)}.</b> ` : ''}${esc(draft.remarque || '')} Vérifie les quantités et corrige si besoin.</div>`;
+}
+function itemHTML(it, i) {
+  const f = (k, label, step) => `<div><label>${label}</label><input inputmode="decimal" data-i="${i}" data-k="${k}" value="${it[k] === '' ? '' : (k === 'kcal' || k === 'g' ? r0(num(it[k])) : r1(num(it[k])))}" step="${step}"></div>`;
+  return `<div class="item">
+      <input class="name" data-i="${i}" data-k="nom" value="${esc(it.nom)}" placeholder="Nom de l'aliment">
+      <div class="grid5">${f('g', 'Grammes', 1)}${f('kcal', 'kcal', 1)}${f('p', 'Prot.', .1)}${f('c', 'Gluc.', .1)}${f('f', 'Lip.', .1)}</div>
+      <button class="del" data-del="${i}">Supprimer</button>
+    </div>`;
+}
+function renderItems() {
+  const box = $('#items');
+  box.innerHTML = draft.items.length ? draft.items.map(itemHTML).join('') : `<p class="muted small">Aucun aliment pour l'instant. ${draft.image ? "Lance l'analyse ou ajoute-les à la main." : 'Appuie sur « + Ajouter ».'}</p>`;
+  renderSheetTotals();
+}
+function renderSheetTotals() {
+  const s = sumItems(draft.items);
+  $('#sheet-totals').innerHTML = `<div><b>${r0(s.kcal)}</b><span>kcal</span></div><div><b style="color:var(--p)">${r0(s.p)}</b><span>prot. (g)</span></div><div><b style="color:var(--c)">${r0(s.c)}</b><span>gluc. (g)</span></div><div><b style="color:var(--f)">${r0(s.f)}</b><span>lip. (g)</span></div>`;
+}
+function refreshItemInputs(i) {
+  const it = draft.items[i];
+  $$(`#items input[data-i="${i}"]`).forEach((el) => {
+    const k = el.dataset.k; if (k === 'nom' || k === 'g' || document.activeElement === el) return;
+    el.value = k === 'kcal' ? r0(num(it[k])) : r1(num(it[k]));
+  });
+}
+
+/* ---------- Lecture de la réponse de l'IA ---------- */
+function extractJSON(text) {
+  if (!text) throw new Error('vide');
+  let t = String(text).trim();
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i); if (fence) t = fence[1];
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  const a2 = t.indexOf('['), b2 = t.lastIndexOf(']');
+  if (a !== -1 && b > a && (a2 === -1 || a < a2)) t = t.slice(a, b + 1);
+  else if (a2 !== -1 && b2 > a2) t = t.slice(a2, b2 + 1);
+  return JSON.parse(t);
+}
+function pick(o, keys) { for (const k of keys) { if (o[k] !== undefined && o[k] !== null && o[k] !== '') return o[k]; } return 0; }
+function normalizeResult(data) {
+  const arr = Array.isArray(data) ? data : (data.aliments || data.items || data.foods || data.aliment || []);
+  const items = (Array.isArray(arr) ? arr : []).map((x) => ({
+    nom: String(pick(x, ['nom', 'name', 'aliment', 'food']) || 'Aliment'),
+    g: r0(num(pick(x, ['grammes', 'g', 'grams', 'quantite', 'quantité', 'poids']))),
+    kcal: r0(num(pick(x, ['kcal', 'calories', 'cal', 'energie']))),
+    p: r1(num(pick(x, ['proteines', 'protéines', 'protein', 'proteins', 'p']))),
+    c: r1(num(pick(x, ['glucides', 'carbs', 'carbohydrates', 'glucide', 'c']))),
+    f: r1(num(pick(x, ['lipides', 'fat', 'fats', 'lipide', 'f']))),
+  }));
+  if (!items.length) throw new Error('aucun aliment');
+  return { items, confiance: Array.isArray(data) ? '' : String(data.confiance || data.confidence || ''), remarque: Array.isArray(data) ? '' : String(data.remarque || data.note || data.remarques || '') };
+}
+function applyResult(res, source) {
+  draft.items = res.items; draft.confiance = res.confiance; draft.remarque = res.remarque; draft.source = source;
+  renderConfidence(); renderItems();
+  $('#confidence').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---------- Consigne commune ---------- */
+function buildPrompt(note, forClaude) {
+  return `Tu es un nutritionniste. Analyse la photo de ce repas.
+Identifie chaque aliment visible, estime sa quantité en grammes (tel que servi, cuit si c'est cuit) et ses valeurs nutritionnelles pour CETTE quantité.
+Pense à l'huile de cuisson, au beurre et aux sauces probables. Si un aliment est caché ou incertain, fais l'estimation la plus réaliste.
+${note ? `Précision donnée par la personne : « ${note} ». Elle est prioritaire sur ce que tu vois.\n` : ''}Réponds ${forClaude ? 'UNIQUEMENT avec un bloc de code JSON' : 'UNIQUEMENT en JSON'}, sans autre texte, avec exactement ce format :
+{"aliments":[{"nom":"riz blanc cuit","grammes":200,"kcal":260,"proteines":5.4,"glucides":56,"lipides":0.6}],"confiance":"élevée | moyenne | faible","remarque":"une phrase courte sur ce qui est incertain"}
+Noms des aliments en français. Nombres sans unité.`;
+}
+
+/* ---------- Gemini ---------- */
+async function callGemini(model, b64, note, key) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: buildPrompt(note, false) }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }],
+    generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+  };
+  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 60000);
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body), signal: ctrl.signal });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error((data.error && data.error.message) || ('HTTP ' + res.status)); e.status = res.status; e.gstatus = data.error && data.error.status; throw e; }
+    const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+    const text = parts.filter((p) => !p.thought).map((p) => p.text || '').join('');
+    if (!text) { const e = new Error("L'IA n'a pas répondu (photo refusée ou vide)."); e.status = 0; throw e; }
+    return text;
+  } finally { clearTimeout(to); }
+}
+async function geminiAnalyze(b64, note) {
+  const key = settings.key.trim();
+  const preferred = store.get('model.ok', '');
+  const list = settings.model ? [settings.model.trim()] : [...new Set([preferred, ...MODEL_CANDIDATES].filter(Boolean))];
+  let lastErr;
+  for (const m of list) {
+    try {
+      const text = await callGemini(m, b64, note, key);
+      if (!settings.model) store.set('model.ok', m);
+      return text;
+    } catch (e) {
+      lastErr = e;
+      const notFound = e.status === 404 || /not found|not supported/i.test(e.message);
+      const quota = e.status === 429;
+      if (notFound || quota) continue; // on essaie le modèle suivant
+      throw e;
+    }
+  }
+  throw lastErr || new Error('Aucun modèle disponible');
+}
+function geminiErrorText(e) {
+  if (e.name === 'AbortError') return "L'analyse a pris trop de temps. Vérifie ta connexion et réessaie.";
+  if (e.status === 400 && /api key|API_KEY/i.test(e.message)) return 'Ta clé Gemini n\'est pas valide. Vérifie-la dans Réglages.';
+  if (e.status === 403) return 'Google refuse ta clé (403). Recrée une clé sur aistudio.google.com/apikey.';
+  if (e.status === 429) return 'Limite gratuite de Gemini atteinte pour le moment. Réessaie plus tard, ou utilise « Coller depuis Claude ».';
+  if (e.status === 503 || e.status === 500) return 'Gemini est surchargé en ce moment. Réessaie dans une minute.';
+  if (!navigator.onLine) return 'Pas de connexion internet.';
+  return "L'analyse a échoué : " + e.message;
+}
+
+/* ---------- Photos ---------- */
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Image illisible')); };
+    img.src = url;
+  });
+}
+function resize(img, max, quality, square) {
+  const w = img.naturalWidth, h = img.naturalHeight; const cv = document.createElement('canvas');
+  if (square) {
+    const s = Math.min(w, h); cv.width = cv.height = max;
+    cv.getContext('2d').drawImage(img, (w - s) / 2, (h - s) / 2, s, s, 0, 0, max, max);
+  } else {
+    const k = Math.min(1, max / Math.max(w, h)); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  }
+  return cv.toDataURL('image/jpeg', quality);
+}
+async function onPhoto(file) {
+  if (!file) return;
+  try {
+    const img = await loadImage(file);
+    const thumb = resize(img, 360, 0.7, false);
+    const big = resize(img, 1024, 0.82, false);
+    const time = nowTime();
+    const date = currentDay;
+    openSheet({ id: null, isNew: true, date, time, type: guessType(time), items: [], note: '', thumb, image: big.split(',')[1] });
+    if (!settings.key) {
+      $('#analyze-msg').innerHTML = `<div class="notice small">Pas encore de clé Gemini. Ajoute-la dans Réglages, ou utilise « Coller depuis Claude » ci-dessous.</div>`;
+    }
+  } catch (e) { toast("Impossible de lire cette photo."); }
+}
+
+/* ---------- Événements de la feuille ---------- */
+$('#type-seg').addEventListener('click', (e) => { const b = e.target.closest('[data-type]'); if (!b) return; draft.type = b.dataset.type; renderTypeSeg(); });
+$('#items').addEventListener('input', (e) => {
+  const el = e.target; if (!el.dataset.k) return;
+  const i = +el.dataset.i, k = el.dataset.k; const it = draft.items[i];
+  if (k === 'nom') { it.nom = el.value; return; }
+  if (k === 'g') {
+    // Changer la quantité recalcule les chiffres en proportion (à partir de la référence)
+    const base = it._base || (it._base = { g: num(it.g), kcal: num(it.kcal), p: num(it.p), c: num(it.c), f: num(it.f) });
+    const newG = num(el.value);
+    if (base.g > 0 && newG > 0) { const r = newG / base.g; it.kcal = base.kcal * r; it.p = base.p * r; it.c = base.c * r; it.f = base.f * r; refreshItemInputs(i); }
+    it.g = el.value === '' ? '' : newG;
+  } else {
+    it[k] = el.value === '' ? '' : num(el.value);
+    it._base = { g: num(it.g), kcal: num(it.kcal), p: num(it.p), c: num(it.c), f: num(it.f) };
+  }
+  renderSheetTotals();
+});
+$('#items').addEventListener('click', (e) => { const b = e.target.closest('[data-del]'); if (!b) return; draft.items.splice(+b.dataset.del, 1); renderItems(); });
+$('#add-item').addEventListener('click', () => {
+  draft.items.push({ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }); renderItems();
+  const names = $$('#items .name'); const last = names[names.length - 1]; if (last) { last.focus(); last.scrollIntoView({ block: 'center' }); }
+});
+$('#analyze').addEventListener('click', async () => {
+  if (!draft || !draft.image) return;
+  if (!settings.key) { $('#analyze-msg').innerHTML = `<div class="notice err small">Ajoute d'abord ta clé Gemini dans Réglages, ou utilise « Coller depuis Claude ».</div>`; return; }
+  const btn = $('#analyze'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyse en cours…';
+  $('#analyze-msg').innerHTML = '';
+  const d = draft;
+  try {
+    const text = await geminiAnalyze(d.image, $('#m-note').value.trim());
+    if (draft !== d) return;
+    applyResult(normalizeResult(extractJSON(text)), 'gemini');
+    btn.innerHTML = '↻ Relancer l\'analyse';
+  } catch (e) {
+    if (draft !== d) return;
+    $('#analyze-msg').innerHTML = `<div class="notice err small">${esc(e instanceof SyntaxError ? "Réponse de l'IA illisible. Relance l'analyse." : geminiErrorText(e))}</div>`;
+    btn.innerHTML = '✨ Analyser la photo';
+  } finally { btn.disabled = false; }
+});
+
+// Claude Pro : copier la consigne / coller la réponse
+$('#open-claude').addEventListener('click', () => { $('#claude-box').classList.toggle('hidden'); $('#claude-box').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; } catch {
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {} ta.remove(); return ok;
+  }
+}
+$('#copy-prompt').addEventListener('click', async () => {
+  const ok = await copyText(buildPrompt($('#m-note').value.trim(), true));
+  toast(ok ? 'Consigne copiée. Ouvre Claude, ajoute la photo et colle.' : 'Copie impossible : réessaie.');
+});
+function importClaude(text) {
+  try { applyResult(normalizeResult(extractJSON(text)), 'claude'); $('#claude-box').classList.add('hidden'); toast('Analyse de Claude importée.'); }
+  catch { toast("Je n'ai pas reconnu la réponse. Copie bien tout le bloc de Claude."); }
+}
+$('#paste-claude').addEventListener('click', async () => {
+  try { const t = await navigator.clipboard.readText(); if (!t) throw new Error(); $('#claude-text').value = t; importClaude(t); }
+  catch { toast('Colle la réponse dans le champ en dessous (appui long → Coller).'); $('#claude-text').focus(); }
+});
+$('#import-claude').addEventListener('click', () => importClaude($('#claude-text').value));
+
+function collectDraft() {
+  draft.date = $('#m-date').value || draft.date; draft.time = $('#m-time').value || draft.time; draft.note = $('#m-note').value.trim();
+  draft.items = draft.items.filter((it) => (it.nom || '').trim() || num(it.kcal) > 0)
+    .map((it) => ({ nom: (it.nom || '').trim() || 'Aliment', g: r0(num(it.g)), kcal: r0(num(it.kcal)), p: r1(num(it.p)), c: r1(num(it.c)), f: r1(num(it.f)) }));
+}
+async function saveDraft() {
+  collectDraft();
+  if (!draft.items.length) { toast('Ajoute au moins un aliment (ou lance l\'analyse).'); return; }
+  const id = draft.id || ('m' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  const meal = { id, date: draft.date, time: draft.time, type: draft.type, items: draft.items, note: draft.note, confiance: draft.confiance || '', source: draft.source || 'manuel', photo: !!draft.thumb };
+  const idx = meals.findIndex((m) => m.id === id);
+  if (idx >= 0) meals[idx] = meal; else meals.push(meal);
+  if (!saveMeals()) return;
+  if (draft.thumb && draft.isNew) await photoDB.put(id, draft.thumb);
+  currentDay = meal.date;
+  closeSheet(); show('today'); toast('Repas enregistré ✓');
+}
+$('#sheet-save').addEventListener('click', saveDraft);
+$('#sheet-save-top').addEventListener('click', saveDraft);
+$('#sheet-cancel').addEventListener('click', closeSheet);
+$('#sheet-delete').addEventListener('click', async () => {
+  if (!draft || !draft.id) return;
+  if (!confirm('Supprimer ce repas ?')) return;
+  meals = meals.filter((m) => m.id !== draft.id); saveMeals(); await photoDB.del(draft.id);
+  closeSheet(); show('today'); toast('Repas supprimé');
+});
+
+/* ---------- Événements généraux ---------- */
+$$('.tab[data-tab]').forEach((b) => b.addEventListener('click', () => { if (b.dataset.tab === 'today') currentDay = todayISO(); show(b.dataset.tab); }));
+document.addEventListener('click', (e) => { const a = e.target.closest('[data-go]'); if (a) { e.preventDefault(); show(a.dataset.go); } });
+$('#shoot').addEventListener('click', () => { $('#photo-input').value = ''; $('#photo-input').click(); });
+$('#photo-input').addEventListener('change', (e) => onPhoto(e.target.files[0]));
+$('#tab-claude').addEventListener('click', () => {
+  // Raccourci : repas sans photo, avec la zone « Coller depuis Claude » ouverte
+  const time = nowTime();
+  openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [], note: '' });
+  $('#claude-box').classList.remove('hidden');
+});
+$('#add-manual').addEventListener('click', () => {
+  const time = currentDay === todayISO() ? nowTime() : '12:00';
+  openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [{ nom: '', g: 100, kcal: 0, p: 0, c: 0, f: 0 }], note: '' });
+});
+$('#prev-day').addEventListener('click', () => { currentDay = shiftDate(currentDay, -1); renderToday(); });
+$('#next-day').addEventListener('click', () => { if (currentDay < todayISO()) { currentDay = shiftDate(currentDay, 1); renderToday(); } });
+$('#meal-list').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-meal]'); if (!b) return;
+  const m = meals.find((x) => x.id === b.dataset.meal); if (!m) return;
+  const thumb = m.photo ? await photoDB.get(m.id) : null;
+  openSheet({ ...JSON.parse(JSON.stringify(m)), isNew: false, thumb, image: null });
+});
+$('#history-list').addEventListener('click', (e) => { const b = e.target.closest('[data-day]'); if (!b) return; currentDay = b.dataset.day; show('today'); });
+
+// Réglages
+$('#save-targets').addEventListener('click', () => {
+  const v = (id, d) => { const n = r0(num($(id).value)); return n > 0 ? n : d; };
+  settings.kcal = v('#t-kcal', DEFAULTS.kcal); settings.p = v('#t-p', DEFAULTS.p); settings.c = v('#t-c', DEFAULTS.c); settings.f = v('#t-f', DEFAULTS.f);
+  saveSettings(); renderSettings(); toast('Objectifs enregistrés ✓');
+});
+$('#toggle-key').addEventListener('click', () => { const i = $('#api-key'); i.type = i.type === 'password' ? 'text' : 'password'; });
+$('#save-key').addEventListener('click', async () => {
+  settings.key = $('#api-key').value.trim(); settings.model = $('#model').value.trim(); saveSettings();
+  const st = $('#key-status');
+  if (!settings.key) { st.innerHTML = '<div class="notice small">Clé effacée.</div>'; return; }
+  const btn = $('#save-key'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Test en cours…';
+  try {
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', { headers: { 'x-goog-api-key': settings.key } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error((data.error && data.error.message) || 'HTTP ' + res.status); e.status = res.status; throw e; }
+    st.innerHTML = '<div class="notice small">✅ Clé valide ! L\'analyse automatique est prête.</div>';
+  } catch (e) {
+    st.innerHTML = `<div class="notice err small">${esc(geminiErrorText(e))}</div>`;
+  } finally { btn.disabled = false; btn.textContent = 'Enregistrer et tester la clé'; }
+});
+$('#export').addEventListener('click', async () => {
+  const photos = await photoDB.all();
+  const payload = { app: 'mon-assiette', version: 1, exportedAt: new Date().toISOString(), settings: { kcal: settings.kcal, p: settings.p, c: settings.c, f: settings.f }, meals, photos };
+  const name = `mon-assiette-${todayISO()}.json`;
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  try {
+    const file = new File([blob], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Sauvegarde Mon Assiette' }); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+});
+$('#import-btn').addEventListener('click', () => { $('#import-file').value = ''; $('#import-file').click(); });
+$('#import-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || !Array.isArray(data.meals)) throw new Error();
+    if (!confirm(`Importer ${data.meals.length} repas ? Les repas déjà présents sont gardés.`)) return;
+    const ids = new Set(meals.map((m) => m.id));
+    for (const m of data.meals) if (m && m.id && !ids.has(m.id)) meals.push(m);
+    if (data.settings) Object.assign(settings, data.settings);
+    saveMeals(); saveSettings();
+    if (data.photos) for (const [id, src] of Object.entries(data.photos)) await photoDB.put(id, src);
+    toast('Sauvegarde importée ✓'); renderSettings();
+  } catch { toast("Ce fichier n'est pas une sauvegarde Mon Assiette."); }
+});
+$('#wipe').addEventListener('click', async () => {
+  if (!confirm('Effacer TOUS tes repas ? Cette action est définitive.')) return;
+  meals = []; saveMeals(); await photoDB.clear(); toast('Données effacées'); renderSettings();
+});
+
+/* ---------- Démarrage ---------- */
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+if (isIOS && !standalone) $('#install-hint').classList.remove('hidden');
+document.addEventListener('visibilitychange', () => { if (!document.hidden && $('#sheet').classList.contains('hidden') && !$('#view-today').classList.contains('hidden')) renderToday(); });
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+show('today');
+</script>
+</body>
+</html>
