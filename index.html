@@ -378,7 +378,7 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
     <div class="head-btns"><button class="ibtn" id="add-manual" aria-label="Ajouter sans photo"><svg class="i"><use href="#i-plussq"/></svg></button></div>
   </header>
   <div class="week" id="week"></div>
-  <div id="key-hint" class="banner hidden"><svg class="i"><use href="#i-spark"/></svg><div>Ajoute ta clé Gemini gratuite dans <a href="#" data-go="settings">Réglages</a> pour analyser tes photos. En attendant, utilise <b>Claude</b>.</div></div>
+  <div id="key-hint" class="banner hidden"><svg class="i"><use href="#i-spark"/></svg><div>Ajoute ta clé Claude dans <a href="#" data-go="settings">Réglages</a> pour que tes photos soient analysées automatiquement.</div></div>
   <section class="dash">
     <div class="dash-top"><div class="ring" id="ring"></div><div class="stats" id="stats"></div></div>
     <div class="macros" id="macro-cards"></div>
@@ -426,15 +426,14 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
     <button class="btn primary" id="save-targets">Enregistrer les objectifs</button>
   </section>
   <section class="group">
-    <h3>Analyse des photos</h3>
-    <p>Ta clé Gemini gratuite reste uniquement sur ce téléphone. Pour l'obtenir : <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, puis « Create API key ».</p>
+    <h3>Analyse des photos (Claude)</h3>
+    <p>Ta clé Claude reste uniquement sur ce téléphone. Pour l'obtenir : <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>, puis « Create Key ». Coût : environ 2 à 4 centimes par photo.</p>
     <div class="keyrow">
-      <div class="field"><label for="api-key">Clé API Gemini</label><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…"></div>
+      <div class="field"><label for="api-key">Clé API Claude</label><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…"></div>
       <button class="sq" id="toggle-key" aria-label="Afficher la clé"><svg class="i"><use href="#i-eye"/></svg></button>
     </div>
     <div id="key-status"></div>
     <button class="btn primary" id="save-key" style="margin-top:12px">Enregistrer et tester</button>
-    <details><summary>Réglage avancé</summary><div class="field" style="margin-top:10px"><label for="model">Modèle Gemini</label><input id="model" autocapitalize="off" spellcheck="false" placeholder="automatique"></div></details>
   </section>
   <section class="group">
     <h3>Mes données</h3>
@@ -465,8 +464,8 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
   <div class="menu">
     <div class="grab"></div>
     <h4>Ajouter un repas</h4>
-    <button class="mi" data-add="photo"><span class="ic g"><svg class="i"><use href="#i-cam"/></svg></span><div><b>Prendre une photo</b><span>L'IA estime calories et macros</span></div></button>
-    <button class="mi" data-add="claude"><span class="ic"><svg class="i"><use href="#i-clip"/></svg></span><div><b>Analyser avec Claude</b><span>Photo envoyée dans ton app Claude</span></div></button>
+    <button class="mi" data-add="photo"><span class="ic g"><svg class="i"><use href="#i-cam"/></svg></span><div><b>Prendre une photo</b><span>Claude calcule calories et macros tout seul</span></div></button>
+    <button class="mi" data-add="claude"><span class="ic"><svg class="i"><use href="#i-clip"/></svg></span><div><b>Passer par l'app Claude</b><span>Sans clé : tu copies-colles toi-même</span></div></button>
     <button class="mi" data-add="recipe"><span class="ic"><svg class="i"><use href="#i-book"/></svg></span><div><b>Choisir une recette</b><span>Les plats de sèche, déjà calculés</span></div></button>
     <button class="mi" data-add="manual"><span class="ic"><svg class="i"><use href="#i-edit"/></svg></span><div><b>Saisir à la main</b><span>Tu entres les valeurs toi-même</span></div></button>
   </div>
@@ -566,14 +565,14 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
    ========================================================= */
 const RECIPES = window.RECIPES || [];
 const CATS = window.CATS || [];
-const DEFAULTS = { kcal: 2500, p: 160, c: 305, f: 70, key: '', model: '' };
+const DEFAULTS = { kcal: 2500, p: 160, c: 305, f: 70, ckey: '' };
 const TYPES = [
   { id: 'petitdej', label: 'Petit-déj' },
   { id: 'dejeuner', label: 'Déjeuner' },
   { id: 'diner', label: 'Dîner' },
   { id: 'collation', label: 'Collation' },
 ];
-const MODEL_CANDIDATES = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const CLAUDE_MODEL = 'claude-opus-5-5';
 const icon = (id, cls = 'i') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -896,7 +895,7 @@ function renderJournal() {
   $('#ring').innerHTML = bigRing(t.kcal, settings.kcal);
   $('#stats').innerHTML = `<div class="stat"><div class="k">Mangé</div><div class="v num">${fmt(t.kcal)} <small>kcal</small></div></div><div class="stat"><div class="k">Objectif</div><div class="v num">${fmt(settings.kcal)} <small>kcal</small></div></div>`;
   $('#macro-cards').innerHTML = macroCard('Protéines', 'var(--p)', t.p, settings.p) + macroCard('Glucides', 'var(--c)', t.c, settings.c) + macroCard('Lipides', 'var(--f)', t.f, settings.f);
-  $('#key-hint').classList.toggle('hidden', !!settings.key);
+  $('#key-hint').classList.toggle('hidden', !!settings.ckey);
   const list = mealsOf(currentDay); const box = $('#meal-list');
   $('#meal-count').textContent = list.length ? `${list.length} repas` : '';
   if (!list.length) {
@@ -968,8 +967,8 @@ function renderProfile() {
    ========================================================= */
 function renderSettings() {
   $('#t-kcal').value = settings.kcal; $('#t-p').value = settings.p; $('#t-c').value = settings.c; $('#t-f').value = settings.f;
-  $('#api-key').value = settings.key; $('#model').value = settings.model;
-  $('#key-status').innerHTML = settings.key ? banner('check', 'Clé enregistrée sur ce téléphone.') : '';
+  $('#api-key').value = settings.ckey;
+  $('#key-status').innerHTML = settings.ckey ? banner('check', 'Clé enregistrée sur ce téléphone.') : '';
 }
 
 /* ---------- Navigation ---------- */
@@ -1077,38 +1076,38 @@ ${note ? `Précision donnée par la personne : « ${note} ». Elle est prioritai
 Noms des aliments en français. Nombres sans unité.`;
 }
 
-/* ---------- Gemini ---------- */
-async function callGemini(model, b64, note, key) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-  const body = { contents: [{ role: 'user', parts: [{ text: buildPrompt(note, false) }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }], generationConfig: { temperature: 0.2, responseMimeType: 'application/json' } };
-  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 60000);
+/* ---------- Claude ---------- */
+function claudeHeaders(key) {
+  return { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2026-10-21', 'anthropic-dangerous-direct-browser-access': 'true' };
+}
+async function claudeAnalyze(b64, note) {
+  const key = settings.ckey.trim();
+  const body = {
+    model: CLAUDE_MODEL, max_tokens: 16000, fallbacks: 'default', output_config: { effort: 'low' },
+    messages: [{ role: 'user', content: [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+      { type: 'text', text: buildPrompt(note, false) }
+    ] }]
+  };
+  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 120000);
   try {
-    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body), signal: ctrl.signal });
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: Object.assign(claudeHeaders(key), { 'anthropic-beta': 'server-side-fallback-2026-07-01' }), body: JSON.stringify(body), signal: ctrl.signal });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) { const e = new Error((data.error && data.error.message) || ('HTTP ' + res.status)); e.status = res.status; throw e; }
-    const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
-    const text = parts.filter((p) => !p.thought).map((p) => p.text || '').join('');
-    if (!text) { const e = new Error("L'IA n'a pas répondu (photo refusée ou vide)."); e.status = 0; throw e; }
+    if (data.stop_reason === 'refusal') { const e = new Error("Claude a refusé d'analyser cette photo."); e.status = 0; throw e; }
+    const text = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');
+    if (!text) { const e = new Error("L'IA n'a pas répondu. Réessaie."); e.status = 0; throw e; }
     return text;
   } finally { clearTimeout(to); }
 }
-async function geminiAnalyze(b64, note) {
-  const key = settings.key.trim(); const preferred = store.get('model.ok', '');
-  const list = settings.model ? [settings.model.trim()] : [...new Set([preferred, ...MODEL_CANDIDATES].filter(Boolean))];
-  let lastErr;
-  for (const m of list) {
-    try { const text = await callGemini(m, b64, note, key); if (!settings.model) store.set('model.ok', m); return text; }
-    catch (e) { lastErr = e; if (e.status === 404 || e.status === 429 || /not found|not supported/i.test(e.message)) continue; throw e; }
-  }
-  throw lastErr || new Error('Aucun modèle disponible');
-}
-function geminiErrorText(e) {
+function aiErrorText(e) {
   if (e.name === 'AbortError') return "L'analyse a pris trop de temps. Vérifie ta connexion et réessaie.";
-  if (e.status === 400 && /api key|API_KEY/i.test(e.message)) return "Ta clé Gemini n'est pas valide. Vérifie-la dans Réglages.";
-  if (e.status === 403) return 'Google refuse ta clé. Recrée une clé sur aistudio.google.com/apikey.';
-  if (e.status === 429) return 'Limite gratuite de Gemini atteinte pour le moment. Réessaie plus tard, ou utilise « Coller depuis Claude ».';
-  if (e.status === 503 || e.status === 500) return 'Gemini est surchargé. Réessaie dans une minute.';
   if (!navigator.onLine) return 'Pas de connexion internet.';
+  if (e.status === 401) return "Ta clé Claude n'est pas valide. Vérifie-la dans Réglages (elle commence par sk-ant-).";
+  if (e.status === 403) return 'Anthropic refuse ta clé. Recrée une clé sur console.anthropic.com.';
+  if (e.status === 400 && /credit|balance|billing/i.test(e.message)) return "Plus de crédit sur ton compte Anthropic. Ajoute du crédit dans console.anthropic.com → Billing.";
+  if (e.status === 429) return 'Trop de demandes d’un coup. Attends une minute et réessaie.';
+  if (e.status === 529 || e.status === 500 || e.status === 503) return 'Claude est surchargé. Réessaie dans une minute.';
   return "L'analyse a échoué : " + e.message;
 }
 
@@ -1133,7 +1132,7 @@ async function onPhoto(file) {
     const img = await loadImage(file);
     const thumb = resize(img, 720, 0.72); const big = resize(img, 1024, 0.82); const time = nowTime();
     openSheet({ id: null, isNew: true, date: currentDay, time, type: guessType(time), items: [], note: '', thumb, image: big.split(',')[1] });
-    if (!settings.key) $('#analyze-msg').innerHTML = banner('info', 'Pas encore de clé Gemini : ajoute-la dans Réglages, ou utilise « Coller depuis Claude ».');
+    if (!settings.ckey) $('#analyze-msg').innerHTML = banner('info', 'Pas encore de clé Claude : ajoute-la dans Réglages pour l’analyse automatique, ou utilise « Coller depuis Claude ».');
   } catch (e) { toast('Impossible de lire cette photo.'); }
 }
 
@@ -1162,17 +1161,17 @@ $('#add-item').addEventListener('click', () => {
 });
 $('#analyze').addEventListener('click', async () => {
   if (!draft || !draft.image) return;
-  if (!settings.key) { $('#analyze-msg').innerHTML = banner('info', "Ajoute d'abord ta clé Gemini dans Réglages, ou utilise « Coller depuis Claude ».", 'err'); return; }
+  if (!settings.ckey) { $('#analyze-msg').innerHTML = banner('info', "Ajoute d'abord ta clé Claude dans Réglages, ou utilise « Coller depuis Claude ».", 'err'); return; }
   const btn = $('#analyze'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Analyse en cours…';
   $('#analyze-msg').innerHTML = ''; const d = draft;
   try {
-    const text = await geminiAnalyze(d.image, $('#m-note').value.trim());
+    const text = await claudeAnalyze(d.image, $('#m-note').value.trim());
     if (draft !== d) return;
-    applyResult(normalizeResult(extractJSON(text)), 'gemini');
+    applyResult(normalizeResult(extractJSON(text)), 'claude');
     btn.innerHTML = `${icon('spark')}Relancer l'analyse`;
   } catch (e) {
     if (draft !== d) return;
-    $('#analyze-msg').innerHTML = banner('info', esc(e instanceof SyntaxError ? "Réponse de l'IA illisible. Relance l'analyse." : geminiErrorText(e)), 'err');
+    $('#analyze-msg').innerHTML = banner('info', esc(e instanceof SyntaxError ? "Réponse de l'IA illisible. Relance l'analyse." : aiErrorText(e)), 'err');
     btn.innerHTML = `${icon('spark')}Analyser la photo`;
   } finally { btn.disabled = false; }
 });
@@ -1281,16 +1280,16 @@ $('#save-targets').addEventListener('click', () => {
 });
 $('#toggle-key').addEventListener('click', () => { const i = $('#api-key'); i.type = i.type === 'password' ? 'text' : 'password'; });
 $('#save-key').addEventListener('click', async () => {
-  settings.key = $('#api-key').value.trim(); settings.model = $('#model').value.trim(); saveSettings();
+  settings.ckey = $('#api-key').value.trim(); saveSettings();
   const st = $('#key-status');
-  if (!settings.key) { st.innerHTML = banner('info', 'Clé effacée.'); return; }
+  if (!settings.ckey) { st.innerHTML = banner('info', 'Clé effacée.'); return; }
   const btn = $('#save-key'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Test en cours…';
   try {
-    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', { headers: { 'x-goog-api-key': settings.key } });
+    const res = await fetch('https://api.anthropic.com/v1/models?limit=1', { headers: claudeHeaders(settings.ckey) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) { const e = new Error((data.error && data.error.message) || 'HTTP ' + res.status); e.status = res.status; throw e; }
     st.innerHTML = banner('check', "<b>Clé valide !</b> L'analyse des photos est prête.");
-  } catch (e) { st.innerHTML = banner('info', esc(geminiErrorText(e)), 'err'); }
+  } catch (e) { st.innerHTML = banner('info', esc(aiErrorText(e)), 'err'); }
   finally { btn.disabled = false; btn.textContent = 'Enregistrer et tester'; }
 });
 async function exportData() {
