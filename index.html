@@ -113,6 +113,24 @@ svg.i { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-widt
 .end .ok { width: 60px; height: 60px; border-radius: 50%; border: 2px solid transparent; background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--grad) border-box; display: grid; place-items: center; margin: 0 auto 10px; }
 .end b { display: block; color: var(--text); font-size: 16px; margin-bottom: 2px; }
 
+.card { margin: 14px 12px 0; border-radius: 22px; overflow: hidden; background: var(--card); border: 1px solid var(--line); }
+.card-vis { display: block; width: 100%; }
+.card .visual { aspect-ratio: 5 / 4; }
+.card .visual .e1 { font-size: 130px; }
+.card .tagkcal { display: none; }
+.card-body { padding: 12px 14px 14px; }
+.card-top { display: flex; align-items: flex-start; gap: 10px; }
+.card-title { text-align: left; font-size: 18px; font-weight: 750; letter-spacing: -.01em; line-height: 1.25; }
+.card-meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pills span { background: var(--chip); border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 650; display: inline-flex; align-items: center; gap: 5px; }
+.pills i { width: 7px; height: 7px; border-radius: 4px; display: inline-block; }
+.pills .pk { background: var(--text); color: var(--bg); }
+.card-btns { display: grid; grid-template-columns: 1fr 1.3fr; gap: 8px; margin-top: 12px; }
+.card-btns .btn + .btn { margin-top: 0; }
+.card-btns .btn { height: 42px; font-size: 14px; }
+.card-btns .btn svg.i { width: 18px; height: 18px; stroke-width: 2.4; }
+
 /* ---------- Explorer ---------- */
 .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--chip); border-radius: 10px; padding: 0 12px; height: 38px; color: var(--muted); }
 .search svg.i { width: 18px; height: 18px; }
@@ -335,7 +353,7 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
   <header class="ig-head">
     <div class="logo">Mon Assiette</div>
     <div class="head-btns">
-      <button class="ibtn" data-go="journal" aria-label="Mon journal"><svg class="i"><use href="#i-heart"/></svg><span class="dot hidden" id="feed-dot"></span></button>
+      
       <button class="ibtn" id="feed-add" aria-label="Ajouter un repas"><svg class="i"><use href="#i-plussq"/></svg></button>
     </div>
   </header>
@@ -374,10 +392,10 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
 <!-- ===== PROFIL ===== -->
 <main id="view-profile" class="wrap hidden">
   <header class="ig-head">
-    <div class="head-title">moi.en.seche</div>
+    <div class="head-title">Mon suivi</div>
     <div class="head-btns"><button class="ibtn" data-go="settings" aria-label="Réglages"><svg class="i"><use href="#i-menu"/></svg></button></div>
   </header>
-  <div class="prof"><div class="big-av"><i>💪</i></div><div class="counts" id="p-counts"></div></div>
+  <div class="prof"><div class="big-av"><i>🎯</i></div><div class="counts" id="p-counts"></div></div>
   <div class="bio" id="p-bio"></div>
   <div class="pbtns"><button class="pbtn" data-go="settings">Modifier mes objectifs</button><button class="pbtn" id="p-export">Sauvegarder</button></div>
   <div class="hl" id="p-hl"></div>
@@ -436,7 +454,7 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
     <button class="tab" data-tab="explore" aria-label="Explorer"><svg class="i"><use href="#i-search"/></svg></button>
     <button class="tab" id="tab-add" aria-label="Ajouter"><svg class="i"><use href="#i-plussq"/></svg></button>
     <button class="tab" data-tab="journal" aria-label="Mon journal"><svg class="i"><use href="#i-flame"/></svg></button>
-    <button class="tab" data-tab="profile" aria-label="Profil"><span class="me-av">💪</span></button>
+    <button class="tab" data-tab="profile" aria-label="Mon suivi"><svg class="i"><use href="#i-chart"/></svg></button>
   </div>
 </nav>
 <input type="file" id="photo-input" accept="image/*" class="hidden">
@@ -512,6 +530,7 @@ details summary { font-size: 13px; color: var(--muted); margin-top: 12px; }
   <symbol id="i-comment" viewBox="0 0 24 24"><path d="M20.7 16.6A9 9 0 1 0 17 20l3.9 1.1z"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M21.5 3 10.6 13.9M21.5 3l-6.8 18-4.1-7.1L3.5 9.8z"/></symbol>
   <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5.3L5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
@@ -660,7 +679,6 @@ function visual(r, cls = 'visual') {
       <span class="e1">${e[0]}</span>
       ${cls === 'visual' ? `<span class="time">⏱ ${r.temps} min</span>` : ''}
       ${cls === 'visual' ? `<div class="tagkcal"><span>🔥 ${r.kcal} kcal</span><span>💪 ${r.p} g prot</span></div>` : ''}
-      ${cls === 'visual' ? `<svg class="i pop" viewBox="0 0 24 24"><use href="#i-heart"/></svg>` : ''}
     </div>`;
 }
 function likesText(r) {
@@ -670,24 +688,18 @@ function likesText(r) {
   return `${n.toLocaleString('fr-FR')} J'aime`;
 }
 function postHTML(r) {
-  const liked = likedR.has(r.id), saved = savedR.has(r.id);
-  return `<article class="post" data-post="${r.id}">
-      <div class="post-head">
-        <span class="avatar"><i>${catOf(r.cat).emoji}</i></span>
-        <div class="grow"><div class="who">${AUTHORS[r.cat] || 'mon.assiette'}${icon('verified', 'v')}</div><div class="where">${catOf(r.cat).label} · ${r.temps} min</div></div>
+  const saved = savedR.has(r.id);
+  return `<article class="card" data-post="${r.id}">
+      <button class="card-vis" data-open="${r.id}" aria-label="Voir la recette">${visual(r)}</button>
+      <div class="card-body">
+        <div class="card-top">
+          <button class="grow card-title" data-open="${r.id}">${esc(r.titre)}</button>
+          <button class="ibtn ${saved ? 'saved' : ''}" data-save="${r.id}" aria-label="Enregistrer">${icon('bookmark')}</button>
+        </div>
+        <div class="card-meta">${catOf(r.cat).emoji} ${catOf(r.cat).label} · ⏱ ${r.temps} min · ${r.ingredients.length} ingrédients</div>
+        <div class="pills num"><span class="pk">🔥 ${r.kcal} kcal</span><span><i style="background:var(--p)"></i>${r.p} g P</span><span><i style="background:var(--c)"></i>${r.c} g G</span><span><i style="background:var(--f)"></i>${r.f} g L</span></div>
+        <div class="card-btns"><button class="btn" data-open="${r.id}">Voir la recette</button><button class="btn primary" data-eat="${r.id}">${icon('plus')}J'ai mangé ça</button></div>
       </div>
-      ${visual(r)}
-      <div class="actions">
-        <button class="ibtn ${liked ? 'liked' : ''}" data-like="${r.id}" aria-label="J'aime">${icon('heart')}</button>
-        <button class="ibtn" data-open="${r.id}" aria-label="Voir la recette">${icon('comment')}</button>
-        <button class="ibtn" data-share="${r.id}" aria-label="Partager">${icon('send')}</button>
-        <button class="ibtn save ${saved ? 'saved' : ''}" data-save="${r.id}" aria-label="Enregistrer">${icon('bookmark')}</button>
-      </div>
-      <div class="likes num" data-likes="${r.id}">${likesText(r)}</div>
-      <div class="caption"><b>${AUTHORS[r.cat] || 'mon.assiette'}</b> ${esc(r.titre)} <span class="tags">${r.tags.map((t) => '#' + t.toLowerCase().replace(/[^a-zà-ÿ0-9]+/gi, '')).join(' ')} #seche</span></div>
-      <div class="macro-line num"><span><b>${r.kcal}</b> kcal</span><span><i style="background:var(--p)"></i><b>${r.p}</b> g P</span><span><i style="background:var(--c)"></i><b>${r.c}</b> g G</span><span><i style="background:var(--f)"></i><b>${r.f}</b> g L</span></div>
-      <button class="more" data-open="${r.id}">Voir la recette (${r.ingredients.length} ingrédients)</button>
-      <button class="eat" data-eat="${r.id}">${icon('plus')}J'ai mangé ça</button>
     </article>`;
 }
 
@@ -720,7 +732,6 @@ function renderFeed() {
   renderStories();
   const t = dayTotals(todayISO()); const left = settings.kcal - t.kcal; const pl = settings.p - t.p;
   $('#budget').innerHTML = `<div class="budget num"><span>${left >= 0 ? `Il te reste <b>${fmt(left)} kcal</b> et <b>${r0(Math.max(pl, 0))} g</b> de protéines aujourd'hui` : `Tu as dépassé de <b>${fmt(-left)} kcal</b> aujourd'hui`}</span><button class="go" data-go="journal">Journal</button></div>`;
-  $('#feed-dot').classList.toggle('hidden', mealsOf(todayISO()).length > 0);
   const list = feedList();
   if (!list.length) {
     $('#feed').innerHTML = `<div class="empty"><div class="ico">${icon('bookmark')}</div><b>Rien d'enregistré</b>Touche le signet sous une recette pour la retrouver ici.</div>`;
@@ -772,7 +783,7 @@ function renderRecipe() {
   $('#r-body').innerHTML = `
     ${visual(r)}
     <div class="r-title">${esc(r.titre)}</div>
-    <div class="r-meta">${catOf(r.cat).emoji} ${catOf(r.cat).label} · ⏱ ${r.temps} min · par ${AUTHORS[r.cat] || 'mon.assiette'}</div>
+    <div class="r-meta">${catOf(r.cat).emoji} ${catOf(r.cat).label} · ⏱ ${r.temps} min</div>
     <div class="r-tags">${r.tags.map((t) => `<span>${esc(t)}</span>`).join('')}</div>
     <div class="r-macros num">
       <div><b>${fmt(r.kcal * k)}</b><span>kcal</span></div>
@@ -828,7 +839,7 @@ function toggleLike(id, el, forceOn) {
 function toggleSave(id) {
   savedR.has(id) ? savedR.delete(id) : savedR.add(id); store.set('saved', [...savedR]);
   $$(`[data-save="${id}"]`).forEach((b) => { b.classList.toggle('saved', savedR.has(id)); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); });
-  toast(savedR.has(id) ? 'Enregistré dans ton profil 🔖' : 'Retiré des enregistrés');
+  toast(savedR.has(id) ? 'Recette enregistrée 🔖' : 'Retiré des enregistrés');
 }
 
 /* =========================================================
@@ -913,7 +924,7 @@ let ptab = 'grid';
 function renderProfile() {
   const days = [...new Set(meals.map((m) => m.date))].sort().reverse();
   $('#p-counts').innerHTML = `<div><b class="num">${meals.length}</b><span>repas</span></div><div><b class="num">${days.length}</b><span>jours suivis</span></div><div><b class="num">${savedR.size}</b><span>enregistrés</span></div>`;
-  $('#p-bio').innerHTML = `<b>En sèche 🔥</b><br>🎯 ${fmt(settings.kcal)} kcal · ${settings.p} g prot · ${settings.c} g gluc · ${settings.f} g lip<br><span class="muted">Mes données restent sur mon téléphone.</span>`;
+  $('#p-bio').innerHTML = `<b>Objectif sèche</b><br>${fmt(settings.kcal)} kcal · ${settings.p} g prot · ${settings.c} g gluc · ${settings.f} g lip<br><span class="muted">Tout reste sur ton téléphone.</span>`;
   const last7 = days.filter((d) => d > shiftDate(todayISO(), -7));
   const avg = last7.length ? last7.map(dayTotals).reduce((a, b) => ({ kcal: a.kcal + b.kcal, p: a.p + b.p }), { kcal: 0, p: 0 }) : null;
   let streak = 0; for (let d = todayISO(); mealsOf(d).length; d = shiftDate(d, -1)) streak++;
@@ -1245,15 +1256,6 @@ document.addEventListener('click', async (e) => {
   const sh = e.target.closest('[data-share]'); if (sh) { shareRecipe(sh.dataset.share); return; }
   const eat = e.target.closest('[data-eat]'); if (eat) { logRecipe(eat.dataset.eat, 1); return; }
   const op = e.target.closest('[data-open]'); if (op) { openRecipe(op.dataset.open); return; }
-  const vis = e.target.closest('#feed [data-vis]');
-  if (vis) {
-    // Double-tap sur la photo = J'aime (comme Instagram)
-    const id = vis.dataset.vis; const now = Date.now();
-    if (lastTap.id === id && now - lastTap.t < 350) {
-      toggleLike(id, null, true); const p = vis.querySelector('.pop'); p.classList.remove('go'); void p.getBoundingClientRect(); p.classList.add('go'); lastTap = { id: null, t: 0 };
-    } else { lastTap = { id, t: now }; }
-    return;
-  }
   const ml = e.target.closest('[data-meal]');
   if (ml) {
     const m = meals.find((x) => x.id === ml.dataset.meal); if (!m) return;
